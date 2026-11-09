@@ -1,5 +1,17 @@
 # Changelog
 
+## 1.2.0 — planning and data-quality candidate
+
+- Cadence-aware outage segmentation and daily coverage/gap eligibility checks.
+- Configured poll interval recorded on new ride and health events; historical cadence inferred from observations.
+- My Trip: two parks, visit weekday, confirmed entry time, transfer allowance, personal shortlists and backup notes.
+- Equal-weight daily comparisons with variability rather than only pooled snapshots.
+- Browser-local, user-scoped trip saving; JSON export and printable brief.
+- Original, explicitly labeled SVG illustrations and a visual GitHub README.
+- Live SPL regressions for mid-day collection gaps and fifteen-minute polling jitter.
+
+Browser interaction and accessibility review still required before stable release. This is not route optimization or automatic reservation/eligibility enforcement.
+
 ## 1.1.0 — Park Atlas refresh (release candidate)
 
 - New Start Here page with a guided planning workflow and collection footprint.

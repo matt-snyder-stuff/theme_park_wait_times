@@ -1,5 +1,6 @@
 <nav search_view="search">
   <view name="start_here" default="true" />
+  <view name="trip_builder" />
   <view name="park_planner" />
   <view name="disney_world" />
   <view name="live_operations" />

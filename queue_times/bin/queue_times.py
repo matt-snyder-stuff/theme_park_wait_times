@@ -91,11 +91,12 @@ def collect(stanza, params):
             observed = time.time()
             events = list(normalize(payload, park, group, observed))
             for event in events:
+                event['poll_interval_seconds'] = int(params.get('interval', '300'))
                 emit(stanza, index, 'queue_times:ride', event, observed)
             health = dict(status='ok', park_id=park_id, park_name=park['name'], ride_count=len(events))
         except Exception as exc:
             health = dict(status='error', park_id=park_id, error=str(exc))
-        health.update(duration_seconds=round(time.time() - start, 3), collection_started=started)
+        health.update(poll_interval_seconds=int(params.get('interval', '300')), duration_seconds=round(time.time() - start, 3), collection_started=started)
         emit(stanza, index, 'queue_times:health', health, time.time())
 
 

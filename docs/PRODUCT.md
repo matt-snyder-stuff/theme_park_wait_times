@@ -25,12 +25,12 @@ Help a visitor turn observed queue patterns into a flexible park-day plan. Answe
 
 ## Visual system
 
-Night-sky surfaces, teal navigation cues, warm amber accents, large editorial headlines, compact explanatory cards, readable tables and native Splunk controls. No remote font dependency or custom JavaScript. CSS is scoped to dashboard presentation and custom `pp-` components. Native tables and controls remain intact.
+Night-sky surfaces, teal navigation cues, warm amber accents, large editorial headlines, compact explanatory cards, readable tables and native Splunk controls. No remote font dependency. My Trip uses local JavaScript for private browser storage and export. CSS is scoped to dashboard presentation and custom `pp-` components. Native tables and controls remain intact.
 
 ## Next priorities
 
-- A saved personal shortlist with must-do, optional and backup categories.
-- A two-park itinerary workspace with explicit transfer-time assumptions.
+- Expand the saved My Trip shortlist into must-do and optional categories with per-ride preferences.
+- Extend the two-park brief with route-aware sequencing and cross-timezone transfers.
 - Official-hours import with provenance and an early-entry eligibility setting.
 - Daily summaries to make long-range research faster on small local instances.
 - Confidence and collection-gap summaries beside each recommended hour.

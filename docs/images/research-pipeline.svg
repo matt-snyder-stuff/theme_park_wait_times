@@ -1,0 +1,39 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="720" viewBox="0 0 1280 720" role="img">
+  <title>Evidence before recommendations</title>
+  <desc>Diagram of the data-quality pipeline: observations, coverage checks, daily comparisons, and planning decisions.</desc>
+  <defs>
+    <linearGradient id="night" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#152e44" />
+      <stop offset="100%" stop-color="#09111d" />
+    </linearGradient>
+  </defs>
+  <rect width="1280" height="720" rx="28" fill="url(#night)" />
+  <text x="64" y="75" fill="#57e1c5" font-size="18" font-weight="700" font-family="Arial, Helvetica, sans-serif">HOW PARK ATLAS THINKS</text>
+  <text x="64" y="143" fill="#e8f2ff" font-size="43" font-weight="700" font-family="Arial, Helvetica, sans-serif">Evidence before recommendations.</text>
+  <rect x="64" y="235" width="270" height="235" rx="18" fill="#162738" stroke="#35536b" />
+  <text x="86" y="278" fill="#ffbd69" font-size="30" font-weight="700" font-family="Arial, Helvetica, sans-serif">01</text>
+  <text x="86" y="325" fill="#57e1c5" font-size="19" font-weight="700" font-family="Arial, Helvetica, sans-serif">OBSERVE</text>
+  <text x="86" y="375" fill="#e8f2ff" font-size="17" font-weight="400" font-family="Arial, Helvetica, sans-serif">Current API snapshots</text>
+  <text x="86" y="407" fill="#acbfd2" font-size="15" font-weight="400" font-family="Arial, Helvetica, sans-serif">Preserve source timestamps</text>
+  <path d="M 341 346 L 357 346 M 351 340 L 357 346 L 351 352" stroke="#57e1c5" fill="none" stroke-width="2" />
+  <rect x="364" y="235" width="270" height="235" rx="18" fill="#162738" stroke="#35536b" />
+  <text x="386" y="278" fill="#ffbd69" font-size="30" font-weight="700" font-family="Arial, Helvetica, sans-serif">02</text>
+  <text x="386" y="325" fill="#57e1c5" font-size="19" font-weight="700" font-family="Arial, Helvetica, sans-serif">CHECK</text>
+  <text x="386" y="375" fill="#e8f2ff" font-size="17" font-weight="400" font-family="Arial, Helvetica, sans-serif">Cadence + daily coverage</text>
+  <text x="386" y="407" fill="#acbfd2" font-size="15" font-weight="400" font-family="Arial, Helvetica, sans-serif">Exclude incomplete days</text>
+  <path d="M 641 346 L 657 346 M 651 340 L 657 346 L 651 352" stroke="#57e1c5" fill="none" stroke-width="2" />
+  <rect x="664" y="235" width="270" height="235" rx="18" fill="#162738" stroke="#35536b" />
+  <text x="686" y="278" fill="#ffbd69" font-size="30" font-weight="700" font-family="Arial, Helvetica, sans-serif">03</text>
+  <text x="686" y="325" fill="#57e1c5" font-size="19" font-weight="700" font-family="Arial, Helvetica, sans-serif">COMPARE</text>
+  <text x="686" y="375" fill="#e8f2ff" font-size="17" font-weight="400" font-family="Arial, Helvetica, sans-serif">Equal-weight daily medians</text>
+  <text x="686" y="407" fill="#acbfd2" font-size="15" font-weight="400" font-family="Arial, Helvetica, sans-serif">Expose variation and counts</text>
+  <path d="M 941 346 L 957 346 M 951 340 L 957 346 L 951 352" stroke="#57e1c5" fill="none" stroke-width="2" />
+  <rect x="964" y="235" width="270" height="235" rx="18" fill="#162738" stroke="#35536b" />
+  <text x="986" y="278" fill="#ffbd69" font-size="30" font-weight="700" font-family="Arial, Helvetica, sans-serif">04</text>
+  <text x="986" y="325" fill="#57e1c5" font-size="19" font-weight="700" font-family="Arial, Helvetica, sans-serif">DECIDE</text>
+  <text x="986" y="375" fill="#e8f2ff" font-size="17" font-weight="400" font-family="Arial, Helvetica, sans-serif">Priority + backup</text>
+  <text x="986" y="407" fill="#acbfd2" font-size="15" font-weight="400" font-family="Arial, Helvetica, sans-serif">Confirm real-world access</text>
+  <text x="64" y="552" fill="#e8f2ff" font-size="29" font-weight="700" font-family="Arial, Helvetica, sans-serif">Never invent missing history.</text>
+  <text x="64" y="595" fill="#acbfd2" font-size="18" font-weight="400" font-family="Arial, Helvetica, sans-serif">The app describes observations. It does not guarantee waits, availability or an optimized route.</text>
+  <text x="64" y="682" fill="#a8bed1" font-size="13" font-weight="400" font-family="Arial, Helvetica, sans-serif">Architecture illustration • no live data shown</text>
+</svg>

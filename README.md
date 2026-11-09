@@ -1,5 +1,12 @@
 # Park Atlas
 
+![Park Atlas — less waiting, more of your day](docs/images/park-atlas-hero.png)
+
+[![Validate app](https://github.com/matt-snyder-stuff/theme_park_wait_times/actions/workflows/validate.yml/badge.svg)](https://github.com/matt-snyder-stuff/theme_park_wait_times/actions/workflows/validate.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-4de0c5)](LICENSE)
+
+[Download the app](https://github.com/matt-snyder-stuff/theme_park_wait_times/releases) · [Read the story](docs/BLOG_DRAFT.md) · [Setup guide](#quick-start-with-docker)
+
 **Plan less waiting. Make more memories.**
 
 Park Atlas turns Queue-Times observations into a theme park planning and research workspace inside Splunk. Find rides with an opening advantage, compare hourly waits, understand availability patterns, and keep a backup ready.
@@ -10,6 +17,7 @@ This started with a question: *Which rides should I do first so I can save paid 
 
 | Workspace | The question it answers |
 | --- | --- |
+| My Trip | How do I turn a two-park shortlist into a saved, printable brief? |
 | Start Here | Where should I begin, and is my data fresh? |
 | Park Planner | What deserves my first 30 minutes at this park? |
 | Disney World | How do I research a day across the four Walt Disney World parks? |
@@ -19,7 +27,17 @@ This started with a question: *Which rides should I do first so I can save paid 
 | How to Read the Research | What do these numbers actually mean? |
 | Data Health / Setup Guide | Is collection working, and how do I operate it? |
 
-The app uses native Splunk Simple XML dashboards with a shared, responsive CSS theme. No external fonts, tracking scripts, API keys, or Python package dependencies are required for collection.
+The app uses native Splunk Simple XML dashboards with a shared, responsive CSS theme. No external fonts, tracking scripts, API keys, or Python package dependencies are required for collection. The My Trip page uses a small local JavaScript extension for browser-local saves and exports.
+
+## A trip plan you can work with
+
+![Two-park planning concept with a morning priority, backup and afternoon window](docs/images/trip-planning-story.png)
+
+*Original concept illustration with fictional rides, not a screenshot. Actual app screenshots are pending live browser review.*
+
+Open **My Trip**, choose your two parks, enter your visit date and confirmed entry time, and allow time for the park transfer. Pick ride shortlists, record party needs and commitments, then Apply. Compare equal-weight daily medians and the range of observed daily advantages. Save a brief on this browser, download a private JSON backup, or print it.
+
+Browser saves are scoped to your Splunk username and do not sync between devices. Party notes are reminders, not an eligibility engine. The app does not automatically enforce reservations, optimize walking routes, or verify early-entry access. Both parks are assumed to share a timezone. Never sum opening advantages as if all rides could be entered simultaneously.
 
 ## Quick start with Docker
 
@@ -48,7 +66,7 @@ python3 scripts/build_app.py
 python3 scripts/package.py
 ```
 
-Install `dist/queue_times-1.1.0.tar.gz` through **Apps → Manage Apps → Install app from file**. Package identity remains `queue_times` so existing installations retain their data and configuration; the display name is Park Atlas.
+Install `dist/queue_times-1.2.0.tar.gz` through **Apps → Manage Apps → Install app from file**. Package identity remains `queue_times` so existing installations retain their data and configuration; the display name is Park Atlas.
 
 The packaged input is disabled. Create a Queue-Times input through **Settings → Data inputs**, or add a stanza in `local/inputs.conf`:
 
@@ -71,12 +89,18 @@ Use `park_ids = *` for catalog discovery. Optional `exclude_park_ids` prevents o
 
 For a two-park day, research the first park's opening advantage and the second park's late-day patterns separately. A short list of must-dos and alternatives is more useful than a minute-by-minute schedule built from a few observations.
 
+## How the research works
+
+![Observation, coverage, daily comparisons and planning decisions](docs/images/research-pipeline.png)
+
+*Architecture illustration; no live data shown.*
+
 ## What the data can support
 
 - Current snapshots are collected from the public Queue-Times API; no historical backfill is documented there.
 - `_time` is collection time. `last_updated` preserves the source timestamp. Repeated readings remain observations, not newly discovered changes.
 - Opening/closing windows are inferred from attractions seen both open and closed on each local day. Always-open shows do not define boundaries.
-- Completed-day comparisons require coverage around both boundaries and at least two operating hours. Calendar-day boundaries split overnight operation.
+- Completed-day comparisons require coverage around both boundaries and at least two operating hours. Calendar-day boundaries split overnight operation. A usable day now requires at least 90% estimated poll coverage and no gap larger than two expected polling intervals plus one minute. New events record their configured cadence; older data uses the observed median positive interval.
 - Posted waits are not measured time spent in line. Availability does not distinguish maintenance, weather, planned closures or mechanical faults.
 - Outage durations require observed open states on both sides. Gaps and incomplete episodes are excluded from typical-duration statistics.
 - This is a research aid, not a route optimizer, official schedule, reservation system or crowd forecast. Early entry, height requirements, travel time and paid-access inventory need separate planning.
@@ -85,7 +109,7 @@ For a two-park day, research the first park's opening advantage and the second p
 
 The reference deployment used approximately **686–698 MiB/day** when collecting all parks every five minutes. That exceeded the 500 MB/day trial allowance and eventually blocked searches. Indexing continued during that incident; a developer license restored search access. Your volume will vary.
 
-The sample cadence reduces ingestion, but is not a guaranteed license cap. Monitor **Settings → Licensing**. Reducing future volume does not clear existing violations. Obtain an appropriate license or a vendor-issued reset; do not delete license records or indexed history to bypass enforcement. At fifteen-minute collection, outage precision is coarser and the existing fifteen-minute gap rule can leave episodes incomplete.
+The sample cadence reduces ingestion, but is not a guaranteed license cap. Monitor **Settings → Licensing**. Reducing future volume does not clear existing violations. Obtain an appropriate license or a vendor-issued reset; do not delete license records or indexed history to bypass enforcement. At fifteen-minute collection, outage precision remains coarser. Gap detection now follows the expected cadence rather than a fixed fifteen-minute threshold.
 
 ## Develop and verify
 

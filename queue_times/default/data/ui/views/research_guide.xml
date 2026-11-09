@@ -35,9 +35,9 @@
             </div>
           </div>
           <h2>What counts as a complete day?</h2>
-          <p>Hours are inferred from attractions observed both open and closed that day. We require observations before and after the inferred boundaries, a finished local day and at least two operating hours. Always-open shows cannot define the boundaries. Overnight operations are split at midnight.</p>
+          <p>Hours are inferred from attractions observed both open and closed that day. We require observations before and after the inferred boundaries, a finished local day and at least two operating hours. Always-open shows cannot define the boundaries. Days require at least 90% estimated polling coverage and no excessive internal gap. Overnight operations are split at midnight.</p>
           <h2>Unavailable does not mean broken</h2>
-          <p>Weather, scheduled closures and maintenance can all appear unavailable. Completed episodes require open observations on both sides. Gaps and incomplete episodes are not included in typical outage durations.</p>
+          <p>Weather, scheduled closures and maintenance can all appear unavailable. Completed episodes require open observations on both sides. Gaps greater than two expected polling intervals plus one minute and incomplete episodes are not included in typical outage durations.</p>
           <h2>Keep the human decisions</h2>
           <p>Choose your must-dos, check ride eligibility, confirm official schedules and leave time for food and travel. This app has no reservation inventory, walking-time model or December crowd forecast. No historical samples are fabricated.</p>
         </div>

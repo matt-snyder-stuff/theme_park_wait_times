@@ -63,6 +63,15 @@ class InputTests(unittest.TestCase):
         self.assertEqual(fetch.call_count,2)
         self.assertEqual(fetch.call_args_list[1].args[0],'/parks/3/queue_times.json')
 
+    def test_cadence_is_recorded(self):
+        import json
+        catalog=[{'name':'Group','parks':[PARK]}]
+        output=io.StringIO()
+        with patch.object(m,'fetch',side_effect=[catalog,{'rides':[RIDE]}]),contextlib.redirect_stdout(output):
+            m.collect('queue_times://test',{'park_ids':'2','interval':'900'})
+        for event in ET.fromstring('<stream>'+output.getvalue()+'</stream>'):
+            self.assertEqual(json.loads(event.findtext('data'))['poll_interval_seconds'],900)
+
     def test_catalog_failure_emits_health(self):
         output=io.StringIO()
         with patch.object(m,'fetch',side_effect=TimeoutError('timeout')),contextlib.redirect_stdout(output):

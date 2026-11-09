@@ -1,0 +1,189 @@
+<form version="1.1" theme="dark" stylesheet="planner.css" script="trip.js">
+  <label>My Trip</label>
+  <description>A personal shortlist, two parks, and a flexible plan you can save and print.</description>
+  <init>
+    <eval token="visit_date">strftime(relative_time(now(),"+30d@d"),"%Y-%m-%d")</eval>
+    <eval token="form.visit_date">strftime(relative_time(now(),"+30d@d"),"%Y-%m-%d")</eval>
+  </init>
+  <fieldset submitButton="true" autoRun="false">
+    <input type="text" token="trip_name" searchWhenChanged="false">
+      <label>Trip name</label>
+      <default>My park day</default>
+    </input>
+    <input type="text" token="visit_date" searchWhenChanged="false">
+      <label>Visit date · YYYY-MM-DD</label>
+    </input>
+    <input type="dropdown" token="morning" searchWhenChanged="false">
+      <label>First park</label>
+      <default>7</default>
+      <fieldForLabel>park_name</fieldForLabel>
+      <fieldForValue>park_id</fieldForValue>
+      <search>
+        <query>`queue_times_index` sourcetype=queue_times:ride | stats latest(park_name) as park_name by park_id | sort park_name</query>
+        <earliest>-7d</earliest>
+        <latest>now</latest>
+      </search>
+      <change>
+        <set token="form.morning_rides">*</set>
+      </change>
+    </input>
+    <input type="dropdown" token="afternoon" searchWhenChanged="false">
+      <label>Second park</label>
+      <default>5</default>
+      <fieldForLabel>park_name</fieldForLabel>
+      <fieldForValue>park_id</fieldForValue>
+      <search>
+        <query>`queue_times_index` sourcetype=queue_times:ride | stats latest(park_name) as park_name by park_id | sort park_name</query>
+        <earliest>-7d</earliest>
+        <latest>now</latest>
+      </search>
+      <change>
+        <set token="form.afternoon_rides">*</set>
+      </change>
+    </input>
+    <input type="dropdown" token="entry" searchWhenChanged="false">
+      <label>Entry eligibility</label>
+      <default>general</default>
+      <choice value="general">General admission</choice>
+      <choice value="early">Eligible for early entry</choice>
+    </input>
+    <input type="text" token="entry_time" searchWhenChanged="false">
+      <label>Your confirmed entry time · HH:MM</label>
+      <default>09:00</default>
+    </input>
+    <input type="text" token="leave_time" searchWhenChanged="false">
+      <label>Leave first park · HH:MM</label>
+      <default>13:00</default>
+    </input>
+    <input type="dropdown" token="transfer" searchWhenChanged="false">
+      <label>Transfer allowance · minutes</label>
+      <default>90</default>
+      <choice value="30">30</choice>
+      <choice value="60">60</choice>
+      <choice value="90">90</choice>
+      <choice value="120">120</choice>
+    </input>
+    <input type="dropdown" token="days" searchWhenChanged="false">
+      <label>Minimum matched weekdays</label>
+      <default>3</default>
+      <choice value="3">3 days · standard</choice>
+      <choice value="1">1 day · exploratory</choice>
+      <choice value="7">7 days · stronger history</choice>
+    </input>
+    <input type="text" token="party_notes" searchWhenChanged="false">
+      <label>Party needs / heights / mobility / exclusions</label>
+      <default>Confirm ride eligibility and walking tolerance</default>
+    </input>
+    <input type="text" token="commitments" searchWhenChanged="false">
+      <label>Meals / shows / reservation times</label>
+      <default>No fixed commitments entered</default>
+    </input>
+    <input type="text" token="backup" searchWhenChanged="false">
+      <label>Backup ride / alternate plan</label>
+      <default>Choose a backup after reviewing availability</default>
+    </input>
+    <input type="multiselect" token="morning_rides" searchWhenChanged="false">
+      <label>Morning shortlist</label>
+      <default>*</default>
+      <choice value="*">All rides · explore first</choice>
+      <delimiter>,</delimiter>
+      <fieldForLabel>ride_name</fieldForLabel>
+      <fieldForValue>ride_id</fieldForValue>
+      <search>
+        <query>`queue_times_index` sourcetype=queue_times:ride park_id=$morning|s$ | stats latest(ride_name) as ride_name by ride_id | sort ride_name</query>
+        <earliest>-7d</earliest>
+        <latest>now</latest>
+      </search>
+    </input>
+    <input type="multiselect" token="afternoon_rides" searchWhenChanged="false">
+      <label>Afternoon shortlist</label>
+      <default>*</default>
+      <choice value="*">All rides · explore first</choice>
+      <delimiter>,</delimiter>
+      <fieldForLabel>ride_name</fieldForLabel>
+      <fieldForValue>ride_id</fieldForValue>
+      <search>
+        <query>`queue_times_index` sourcetype=queue_times:ride park_id=$afternoon|s$ | stats latest(ride_name) as ride_name by ride_id | sort ride_name</query>
+        <earliest>-7d</earliest>
+        <latest>now</latest>
+      </search>
+    </input>
+  </fieldset>
+  <row>
+    <panel>
+      <html>
+        <div class="pp-hero">
+          <p class="pp-eyebrow">PARK ATLAS / MY TRIP</p>
+          <h1>A day worth looking forward to.</h1>
+          <p class="pp-lede">Choose your parks and rides. Confirm your entry time, make room for the transfer, and keep an alternate ready.</p>
+          <div class="pp-trip-actions">
+            <button type="button" id="trip-save">Save on this browser</button>
+            <button type="button" id="trip-load">Load saved trip</button>
+            <button type="button" id="trip-export">Download trip JSON</button>
+            <button type="button" id="trip-print">Print / save PDF</button>
+          </div>
+          <p id="trip-status" role="status" aria-live="polite">Local-only saving requires JavaScript. Apply your selections to run the research.</p>
+        </div>
+      </html>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <html>
+        <div class="pp-note">
+          <strong>Your planning assumptions</strong>
+          <p>Enter the official entry time you can actually use. Eligibility is recorded, not verified. The first-park window starts at your entered time; it is not shifted automatically for early entry. Date filters match historical weekdays, not future weather or holiday demand.</p>
+          <p>Transfer timing assumes both parks share a timezone. Priorities are a shortlist, not a walking route or a guaranteed ride sequence. Party notes and commitments are reminders, not automatically enforced constraints. Refresh research after loading or changing a saved trip.</p>
+        </div>
+      </html>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <table>
+        <title>First park · choose your first ride and a backup</title>
+        <search>
+          <query>`queue_times_index` sourcetype=queue_times:ride park_id=$morning|s$ | eval visit_day=strptime($visit_date|s$,"%Y-%m-%d"), selected_weekday=strftime(visit_day,"%w"), observed_weekday=strftime(strptime(park_local_date,"%Y-%m-%d"),"%w") | where observed_weekday=selected_weekday | `queue_times_observed_day` | where complete_day=1 | eval local_minute=tonumber(park_local_hour)*60+tonumber(substr(park_local_time,15,2)), entry_minute=tonumber(substr($entry_time|s$,1,2))*60+tonumber(substr($entry_time|s$,4,2)), leave_minute=tonumber(substr($leave_time|s$,1,2))*60+tonumber(substr($leave_time|s$,4,2)), arrival_minute=leave_minute+tonumber($transfer|s$) | where match($entry_time|s$,"^([01][0-9]|2[0-3]):[0-5][0-9]$") AND match($leave_time|s$,"^([01][0-9]|2[0-3]):[0-5][0-9]$") AND leave_minute&gt;entry_minute AND arrival_minute&lt;1440 | eval shortlist=split($morning_rides|s$,",") | where mvfind(shortlist,"^[*]$")&gt;=0 OR mvfind(shortlist,"^".tostring(ride_id)."$")&gt;=0 | eval early_wait=if(open=1 AND local_minute&gt;=entry_minute AND local_minute&lt;entry_minute+30,wait_time,null()),later_wait=if(open=1 AND local_minute&gt;=entry_minute+30 AND local_minute&lt;leave_minute,wait_time,null()),early_open=if(local_minute&gt;=entry_minute AND local_minute&lt;entry_minute+30,100*open,null()) | stats median(early_wait) as early median(later_wait) as later avg(early_open) as availability count(early_wait) as early_samples by park_name ride_name park_local_date | where isnotnull(early) AND isnotnull(later) AND early_samples&gt;=2 | eval advantage=later-early | stats median(early) as Early_minutes median(later) as Later_minutes median(advantage) as Potential_minutes_avoided min(advantage) as Smallest_daily_advantage max(advantage) as Largest_daily_advantage avg(availability) as Early_open_pct count as Days by park_name ride_name | where Days&gt;=tonumber($days|s$) | eval Early_open_pct=round(Early_open_pct,1) | sort 0 - Potential_minutes_avoided Early_minutes | table park_name ride_name Early_minutes Later_minutes Potential_minutes_avoided Smallest_daily_advantage Largest_daily_advantage Early_open_pct Days | appendpipe [stats count | where count=0 | eval Status="No qualifying evidence. Check times, date, shortlist and minimum days; use exploratory mode for sparse history." | fields Status]</query>
+          <earliest>-30d</earliest>
+          <latest>now</latest>
+        </search>
+        <option name="count">8</option>
+        <option name="drilldown">none</option>
+      </table>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <table>
+        <title>Second park · best observed hour after your transfer</title>
+        <search>
+          <query>`queue_times_index` sourcetype=queue_times:ride park_id=$afternoon|s$ | eval visit_day=strptime($visit_date|s$,"%Y-%m-%d"), selected_weekday=strftime(visit_day,"%w"), observed_weekday=strftime(strptime(park_local_date,"%Y-%m-%d"),"%w") | where observed_weekday=selected_weekday | `queue_times_observed_day` | where complete_day=1 | eval local_minute=tonumber(park_local_hour)*60+tonumber(substr(park_local_time,15,2)), entry_minute=tonumber(substr($entry_time|s$,1,2))*60+tonumber(substr($entry_time|s$,4,2)), leave_minute=tonumber(substr($leave_time|s$,1,2))*60+tonumber(substr($leave_time|s$,4,2)), arrival_minute=leave_minute+tonumber($transfer|s$) | where match($entry_time|s$,"^([01][0-9]|2[0-3]):[0-5][0-9]$") AND match($leave_time|s$,"^([01][0-9]|2[0-3]):[0-5][0-9]$") AND leave_minute&gt;entry_minute AND arrival_minute&lt;1440 | eval shortlist=split($afternoon_rides|s$,",") | where mvfind(shortlist,"^[*]$")&gt;=0 OR mvfind(shortlist,"^".tostring(ride_id)."$")&gt;=0 | where open=1 AND local_minute&gt;=arrival_minute AND _time&lt;=last_open | stats median(wait_time) as daily_median count as Samples by park_name ride_name park_local_hour park_local_date | stats median(daily_median) as Median_minutes min(daily_median) as Lowest_day max(daily_median) as Highest_day count as Days sum(Samples) as Samples by park_name ride_name park_local_hour | where Days&gt;=tonumber($days|s$) | sort 0 park_name ride_name Median_minutes park_local_hour | dedup park_name ride_name | table park_name ride_name park_local_hour Median_minutes Lowest_day Highest_day Days Samples | appendpipe [stats count | where count=0 | eval Status="No qualifying evidence. Check times, date, shortlist and minimum days; use exploratory mode for sparse history." | fields Status]</query>
+          <earliest>-30d</earliest>
+          <latest>now</latest>
+        </search>
+        <option name="count">8</option>
+        <option name="drilldown">none</option>
+      </table>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <html>
+        <div class="pp-section" id="trip-brief">
+          <h2>Your saved brief</h2>
+          <p id="trip-summary">Save your selections to create a readable brief here. Download the JSON as a portable backup; browser storage does not sync between devices.</p>
+        </div>
+      </html>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <html>
+        <div class="pp-footer">
+          <a href="https://queue-times.com/">Powered by Queue-Times.com</a>
+          <a href="research_guide">Understand the evidence →</a>
+        </div>
+      </html>
+    </panel>
+  </row>
+</form>

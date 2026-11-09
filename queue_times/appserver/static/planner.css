@@ -32,3 +32,8 @@ a.pp-card:hover,a.pp-card:focus { border-color: #4de0c5; background: #1d3445; te
 .dashboard-row .table th { white-space: normal; }
 @media(max-width:900px) { .pp-card-grid,.pp-step-grid {grid-template-columns:1fr;} .pp-hero {padding:30px 24px;} .dashboard-body {padding:16px;} }
 @media(prefers-reduced-motion:reduce) { a.pp-card {transition:none;} }
+.pp-trip-actions { display:flex; gap:12px; flex-wrap:wrap; margin:24px 0 14px; }
+.pp-trip-actions button { padding:11px 16px; border:1px solid #4de0c5; border-radius:8px; background:#163a3c; color:#e5fff8; font-weight:600; cursor:pointer; }
+.pp-trip-actions button:focus-visible { outline:3px solid #ffbd69; outline-offset:3px; }
+#trip-status { color:#b9cada; }
+@media print { .app-bar,.header,.fieldset,.pp-trip-actions { display:none !important; } .dashboard-body,.dashboard-panel,.pp-hero,.pp-section { background:white !important; color:black !important; box-shadow:none !important; } .pp-hero h1,.pp-section h2,.pp-section p,.pp-lede {color:black !important;} }

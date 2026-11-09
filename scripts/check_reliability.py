@@ -38,3 +38,15 @@ assert float(rows[0]['opening'])==start and float(rows[0]['closing'])==start+180
 rows=results(base+' | where _time>='+str(start)+' | `queue_times_observed_day` | stats max(complete_day) as eligible')
 assert rows[0]['eligible']=='0', rows
 print('RELIABILITY OK: repeated outages, gap exclusion, inferred hours, partial-day exclusion')
+
+rows=results(base+' | where observed_at<'+str(start+60*60)+' OR observed_at>'+str(start+120*60)+' | `queue_times_observed_day` | stats max(complete_day) as eligible max(largest_gap_seconds) as largest_gap')
+assert rows[0]['eligible']=='0',rows
+# Fifteen-minute polling with ordinary five-second jitter remains contiguous.
+slow=[]
+for minute,state in [(-15,0),(0,1),(15,1),(30,0),(45,0),(60,1),(75,1),(90,1),(105,1),(120,1),(135,0)]:
+    epoch=start+minute*60+(5 if minute==45 else 0)
+    slow.append(dict(events[0],ride_id=9,ride_name='Slow ride',observed_at=epoch,is_open='true' if state else 'false',poll_interval_seconds=900))
+slow_base='| makeresults | eval _raw='+json.dumps(json.dumps({'events':slow},separators=(',',':')))+' | spath path=events{} output=event | mvexpand event | spath input=event | eval _time=observed_at'
+rows=results(slow_base+' | `queue_times_outage_segments` | where bounded=1 | table duration_minutes')
+assert len(rows)==1 and float(rows[0]['duration_minutes'])==30,rows
+print('QUALITY OK: missing mid-day coverage excluded; 15-minute jitter remains a completed episode')

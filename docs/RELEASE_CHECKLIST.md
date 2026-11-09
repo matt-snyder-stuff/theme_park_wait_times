@@ -29,3 +29,12 @@ Browser automation was unavailable during the initial refresh session (native br
 - `queue_times-1.1.0.tar.gz` code-only app package.
 - Release notes identifying the stable `queue_times` app ID and new Park Atlas display name.
 - No `.env`, `queue_times/local`, vendor `.lic` files, indexed data or cached bytecode.
+
+## 1.2.0 candidate update
+
+- [x] Ten Python unit tests pass, including configured-cadence emission.
+- [x] JavaScript controller tests pass for user scoping, save/load, malformed data and text-only rendering.
+- [x] Live SPL scenarios reject missing mid-day coverage and accept normal 15-minute polling jitter.
+- [x] My Trip morning and afternoon queries return real evidence.
+- [x] Original illustrations rendered and visually inspected; labeled as non-screenshots.
+- [ ] Browser interaction / accessibility checks and AppInspect still required.

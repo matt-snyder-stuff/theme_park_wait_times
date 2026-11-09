@@ -1,24 +1,25 @@
-# Park Atlas 1.1.0 — release candidate 1
+# Park Atlas 1.2.0 — release candidate 1
 
-Park Atlas turns Queue-Times observations into a theme park planning and research workspace in Splunk. Start with an opening priority, compare later opportunities, and keep a backup ready.
+This update addresses data-quality gaps and adds a practical two-park trip brief.
 
-This candidate introduces a guided home page, a worldwide Park Planner, a focused Disney World workspace, a shared dark teal/amber theme, clearer data-readiness messages, and in-app research and setup guides. The repository includes a blog draft, Docker setup helper, MIT license, CI validation and code-only packaging.
+## New and fixed
 
-## Install or upgrade
+- Outage segmentation follows the expected collection cadence, with a tolerance of two intervals plus one minute. Fifteen-minute polling no longer breaks an episode because of ordinary request jitter.
+- Completed days require at least 90% estimated poll coverage and no excessive mid-day gap. Coverage and largest gaps appear in planner readiness.
+- New events include the configured polling interval; older data uses an inferred median interval.
+- My Trip adds a visit date, two parks, confirmed entry time, transfer allowance, shortlists, party reminders and a backup plan.
+- My Trip comparisons use matched weekdays and equal-weight daily medians, with daily variability visible.
+- User-scoped browser-local saving, JSON download and print/PDF controls. No personal trip data is sent to GitHub.
+- README and blog now include three original, explicitly labeled editorial illustrations, provided in SVG and PNG formats.
 
-Install `queue_times-1.1.0.tar.gz` using Splunk's app installation interface. The app ID remains `queue_times`; existing index data and local configuration remain in place. New package installations leave collection disabled until configured. See the README for Docker and distributed-deployment notes.
+## Verification
 
-## Validated
+Ten Python tests and the JavaScript controller tests pass. Live Splunk regression searches verify completed outages, always-open attraction handling, missing mid-day coverage, and fifteen-minute polling jitter. The two trip searches return actual evidence rows. Release package and credential-exclusion checks pass.
 
-- Nine unit tests, repeatable dashboard generation, XML/navigation validation, package exclusions and local-credential scanning.
-- Splunk Enterprise 9.4.13 btool check.
-- New views registered; landing-page, data-readiness, opening-priority and live-board queries execute against actual collected data.
-- The new CSS is served by Splunk Web and matches the packaged asset.
+## Limitations
 
-## Remaining before stable release
+Browser interaction, responsive/accessibility review and AppInspect remain outstanding because browser control is unavailable in this environment. The images are illustrations, not app screenshots. This is a prerelease.
 
-Live browser rendering, responsive/keyboard review, blog screenshots and Splunk AppInspect have not been completed. Browser automation was unavailable during this refresh. This is a prerelease, not a certified Splunkbase or Splunk Cloud app. Review the release checklist before promoting it.
+The trip brief is not a walking-route optimizer. Party notes and reservations are reminders, not automatically enforced constraints. Entry times are user-confirmed; official hours are not imported. Transfers assume both parks share a timezone. Browser saves do not sync between devices. Do not add individual opening advantages together as promised itinerary savings.
 
-The planner infers operating hours and compares sampled posted waits. It does not provide official schedules, guaranteed savings, reservation inventory, walking routes or historical API backfill.
-
-Powered by Queue-Times.com. Community project; no endorsement by park operators, Queue-Times or Splunk is implied.
+Install the attached `queue_times-1.2.0.tar.gz` over the existing `queue_times` app, preserving local configuration and indexed history. Powered by Queue-Times.com.

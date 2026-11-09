@@ -1,5 +1,7 @@
 # I used Splunk to plan a better theme park day
 
+![Park Atlas editorial illustration](images/park-atlas-hero.png)
+
 *Draft for author review. Product name: Park Atlas. Screenshots should be added after live browser review; no screenshot or production certification is implied by this draft.*
 
 The question was simple: which ride should I do first?
@@ -68,7 +70,11 @@ The Start Here page explains the research loop. A general Park Planner supports 
 
 The implementation stays close to native Splunk: Simple XML, local CSS, a Python standard-library collector, and no external fonts or tracking scripts. The public package excludes local credentials, runtime settings, vendor license files and indexed data.
 
-It does not book rides, optimize walking routes, or know your must-dos. Those are intentional boundaries. The next useful step is a personal shortlist and a two-park workspace with explicit travel-time assumptions—not a more impressive-looking prediction built on weak evidence.
+It does not book rides, optimize walking routes, or know your must-dos. Those are intentional boundaries. The My Trip workspace now adds a personal shortlist and two-park brief with explicit transfer-time assumptions. Its historical comparisons give each observed day equal weight. Browser-local saving, JSON export and printing keep the plan portable, while reminders remain clearly separate from automatically enforced constraints.
+
+![Two-park planning concept, not a live screenshot](images/trip-planning-story.png)
+
+The next step is route-aware sequencing and official-hours integration, after the browser and accessibility review.
 
 ## Try the release candidate
 

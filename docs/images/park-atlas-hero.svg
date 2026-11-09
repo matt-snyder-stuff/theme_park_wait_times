@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="720" viewBox="0 0 1280 720" role="img">
+  <title>Park Atlas — less waiting, more of your day</title>
+  <desc>Original editorial illustration of a theme-park research app. Not a product screenshot.</desc>
+  <defs>
+    <linearGradient id="night" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#152e44" />
+      <stop offset="100%" stop-color="#09111d" />
+    </linearGradient>
+  </defs>
+  <rect width="1280" height="720" rx="28" fill="url(#night)" />
+  <text x="64" y="78" fill="#57e1c5" font-size="23" font-weight="700" font-family="Arial, Helvetica, sans-serif">PARK ATLAS</text>
+  <text x="64" y="174" fill="#e8f2ff" font-size="66" font-weight="700" font-family="Arial, Helvetica, sans-serif">Less waiting.</text>
+  <text x="64" y="250" fill="#e8f2ff" font-size="66" font-weight="700" font-family="Arial, Helvetica, sans-serif">More of your day.</text>
+  <text x="67" y="305" fill="#acbfd2" font-size="18" font-weight="400" font-family="Arial, Helvetica, sans-serif">Theme park planning and research, powered by observations.</text>
+  <text x="67" y="337" fill="#acbfd2" font-size="18" font-weight="400" font-family="Arial, Helvetica, sans-serif">Find an opening advantage. Keep a good backup. Go enjoy the park.</text>
+  <rect x="64" y="405" width="350" height="172" rx="18" fill="#162738" stroke="#35536b" />
+  <text x="90" y="445" fill="#ffbd69" font-size="16" font-weight="700" font-family="Arial, Helvetica, sans-serif">01 / PLAN</text>
+  <text x="90" y="493" fill="#e8f2ff" font-size="22" font-weight="700" font-family="Arial, Helvetica, sans-serif">Choose your first ride</text>
+  <path d="M 91 542 L 166 542 L 208 522 L 270 532 L 370 511" fill="none" stroke="#57e1c5" stroke-width="3" />
+  <rect x="451" y="405" width="350" height="172" rx="18" fill="#162738" stroke="#35536b" />
+  <text x="477" y="445" fill="#ffbd69" font-size="16" font-weight="700" font-family="Arial, Helvetica, sans-serif">02 / COMPARE</text>
+  <text x="477" y="493" fill="#e8f2ff" font-size="22" font-weight="700" font-family="Arial, Helvetica, sans-serif">Learn from complete days</text>
+  <path d="M 478 542 L 553 542 L 595 522 L 657 532 L 757 511" fill="none" stroke="#57e1c5" stroke-width="3" />
+  <rect x="838" y="405" width="350" height="172" rx="18" fill="#162738" stroke="#35536b" />
+  <text x="864" y="445" fill="#ffbd69" font-size="16" font-weight="700" font-family="Arial, Helvetica, sans-serif">03 / ADAPT</text>
+  <text x="864" y="493" fill="#e8f2ff" font-size="22" font-weight="700" font-family="Arial, Helvetica, sans-serif">Keep an alternate ready</text>
+  <path d="M 865 542 L 940 542 L 982 522 L 1044 532 L 1144 511" fill="none" stroke="#57e1c5" stroke-width="3" />
+  <text x="65" y="652" fill="#a8bed1" font-size="15" font-weight="700" font-family="Arial, Helvetica, sans-serif">SPLUNK APP  /  LIVE QUEUES  /  LOCAL PARK TIME  /  TRANSPARENT EVIDENCE</text>
+  <text x="65" y="685" fill="#8097ac" font-size="12" font-weight="400" font-family="Arial, Helvetica, sans-serif">Editorial illustration • not a dashboard screenshot</text>
+</svg>

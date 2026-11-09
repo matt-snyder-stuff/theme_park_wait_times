@@ -21,11 +21,11 @@
     <panel>
       <html>
         <div class="pp-card-grid">
-          <a class="pp-card" href="park_planner">
+          <a class="pp-card" href="trip_builder">
             <span class="pp-number">01 / PLAN</span>
-            <h2>Find your opening advantage</h2>
-            <p>Choose a park. Compare the first 30 minutes with later waits. Decide what deserves your first stop.</p>
-            <strong>Build a morning →</strong>
+            <h2>Build your park day</h2>
+            <p>Choose two parks, shortlist your rides, and save a brief with room for transfers and a backup plan.</p>
+            <strong>Start your trip →</strong>
           </a>
           <a class="pp-card" href="disney_world">
             <span class="pp-number">02 / EXPLORE</span>
