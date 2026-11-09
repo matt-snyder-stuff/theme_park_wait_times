@@ -1,0 +1,34 @@
+/* Park Atlas: local assets only; no remote fonts, trackers or JavaScript. */
+.dashboard-body { background: #0b1420; padding: 24px 28px 48px; }
+.dashboard-header h2 { color: #eef6ff; font-weight: 700; letter-spacing: -.5px; }
+.dashboard-row .dashboard-panel { background: #121f2e; border: 1px solid #293b50; border-radius: 14px; overflow: hidden; box-shadow: 0 8px 28px rgba(0,0,0,.12); }
+.dashboard-row .dashboard-panel h2.panel-title { font-size: 16px; font-weight: 600; padding: 20px 20px 12px; color: #e9f2fc; }
+.dashboard-row .dashboard-panel .html { padding: 0; }
+.fieldset { padding: 18px !important; border: 1px solid #293b50; border-radius: 12px; background: #121f2e; margin-bottom: 24px; }
+.pp-hero { position: relative; padding: 46px 42px; background: radial-gradient(ellipse at 95% 5%,rgba(77,224,197,.16),transparent 55%), linear-gradient(125deg,#14283c,#101a29); border-top: 3px solid #4de0c5; }
+.pp-eyebrow { color: #4de0c5; font-size: 11px; letter-spacing: 2.2px; font-weight: 700; margin-bottom: 18px; }
+.pp-hero h1 { color: #f5f8ff; font-size: clamp(32px,4vw,56px); line-height: 1.12; letter-spacing: -1.8px; margin: 0 0 20px; font-weight: 750; max-width: 900px; }
+.pp-lede { color: #b9cada; max-width: 740px; font-size: 18px; line-height: 1.6; }
+.pp-tags { display: flex; gap: 10px; margin-top: 26px; }
+.pp-tags span { font-size: 10px; letter-spacing: 1.5px; color: #a3dfd5; border: 1px solid #31594f; padding: 6px 12px; border-radius: 20px; }
+.pp-card-grid,.pp-step-grid { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 20px; }
+.pp-card-grid { padding: 24px; }
+a.pp-card { display: block; background: #182a3b; border: 1px solid #355067; border-radius: 12px; padding: 28px; color: #c2d1df; text-decoration: none; transition: border-color .2s, background .2s; }
+a.pp-card:hover,a.pp-card:focus { border-color: #4de0c5; background: #1d3445; text-decoration: none; }
+.pp-number { color: #ffbd69; font-size: 11px; font-weight: 700; letter-spacing: 1.5px; }
+.pp-card h2,.pp-section h2 { color: #f0f6ff; font-size: 23px; line-height: 1.3; margin: 18px 0 12px; }
+.pp-card p,.pp-section p,.pp-note p { font-size: 14px; line-height: 1.7; color: #b9cada; }
+.pp-card strong { display:block; color:#4de0c5; margin-top:22px; }
+.pp-section { padding: 32px 38px; }
+.pp-step-grid { margin-top: 24px; }
+.pp-step-grid b { color: #ffbd69; font-size: 16px; }
+.pp-note { padding: 22px 32px; border-left: 3px solid #4de0c5; }
+.pp-note strong { color: #eff7ff; font-size: 17px; }
+.pp-note p:last-child { margin-bottom:0; }
+.pp-note-warm { border-left-color: #ffbd69; }
+.pp-note a,.pp-section a,.pp-footer a { color: #66e8ce; text-decoration: underline; }
+.pp-footer { padding: 20px 28px; display: flex; flex-wrap: wrap; align-items:center; justify-content:space-between; gap:16px; color:#a4b6c8; font-size:12px; }
+.dashboard-body a:focus-visible { outline: 2px solid #ffbd69; outline-offset: 4px; }
+.dashboard-row .table th { white-space: normal; }
+@media(max-width:900px) { .pp-card-grid,.pp-step-grid {grid-template-columns:1fr;} .pp-hero {padding:30px 24px;} .dashboard-body {padding:16px;} }
+@media(prefers-reduced-motion:reduce) { a.pp-card {transition:none;} }

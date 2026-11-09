@@ -1,0 +1,58 @@
+<dashboard version="1.1" theme="dark" stylesheet="planner.css">
+  <label>How to Read the Research</label>
+  <row>
+    <panel>
+      <html>
+        <div class="pp-hero">
+          <p class="pp-eyebrow">PARK ATLAS / FIELD GUIDE</p>
+          <h1>How to Read the Research</h1>
+          <p class="pp-lede">A better trip starts with knowing what the data can—and cannot—tell you.</p>
+          <div class="pp-tags">
+            <span>OBSERVE</span>
+            <span>COMPARE</span>
+            <span>PLAN</span>
+          </div>
+        </div>
+      </html>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <html>
+        <div class="pp-section">
+          <div class="pp-step-grid">
+            <div>
+              <h2>Opening advantage</h2>
+              <p>Later-day median minus the first-30-minute median. A larger positive difference is a reason to investigate a ride early—not guaranteed time saved.</p>
+            </div>
+            <div>
+              <h2>Evidence before confidence</h2>
+              <p>Recommendations normally require three distinct days. Opening comparisons also require six early and twelve later open snapshots. One-day mode is exploratory.</p>
+            </div>
+            <div>
+              <h2>Median and P95</h2>
+              <p>Median is the middle posted wait. P95 is a longer-wait scenario within the observed sample. Neither measures your actual time in line.</p>
+            </div>
+          </div>
+          <h2>What counts as a complete day?</h2>
+          <p>Hours are inferred from attractions observed both open and closed that day. We require observations before and after the inferred boundaries, a finished local day and at least two operating hours. Always-open shows cannot define the boundaries. Overnight operations are split at midnight.</p>
+          <h2>Unavailable does not mean broken</h2>
+          <p>Weather, scheduled closures and maintenance can all appear unavailable. Completed episodes require open observations on both sides. Gaps and incomplete episodes are not included in typical outage durations.</p>
+          <h2>Keep the human decisions</h2>
+          <p>Choose your must-dos, check ride eligibility, confirm official schedules and leave time for food and travel. This app has no reservation inventory, walking-time model or December crowd forecast. No historical samples are fabricated.</p>
+        </div>
+      </html>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <html>
+        <div class="pp-footer">
+          <a href="https://queue-times.com/" target="_blank" rel="noopener noreferrer">Powered by Queue-Times.com</a>
+          <span>Posted waits. Observed patterns. Your decisions.</span>
+          <a href="research_guide">How to read the data →</a>
+        </div>
+      </html>
+    </panel>
+  </row>
+</dashboard>

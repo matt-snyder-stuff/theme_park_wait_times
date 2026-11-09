@@ -1,0 +1,154 @@
+<form version="1.1" theme="dark" stylesheet="planner.css">
+  <label>Live Explorer</label>
+  <description>What is happening in the parks right now?</description>
+  <fieldset submitButton="false">
+    <input type="dropdown" token="park" searchWhenChanged="true">
+      <label>Park</label>
+      <choice value="*">All parks</choice>
+      <default>*</default>
+      <fieldForLabel>park_name</fieldForLabel>
+      <fieldForValue>park_id</fieldForValue>
+      <search>
+        <query>`queue_times_index` sourcetype=queue_times:ride | stats latest(park_name) as park_name by park_id | sort park_name</query>
+        <earliest>-7d</earliest>
+        <latest>now</latest>
+        <refresh>300s</refresh>
+      </search>
+    </input>
+  </fieldset>
+  <row>
+    <panel>
+      <html>
+        <div class="pp-hero">
+          <p class="pp-eyebrow">PARK ATLAS / LIVE EXPLORER</p>
+          <h1>Live Explorer</h1>
+          <p class="pp-lede">What is happening in the parks right now?</p>
+          <div class="pp-tags">
+            <span>OBSERVE</span>
+            <span>COMPARE</span>
+            <span>PLAN</span>
+          </div>
+        </div>
+      </html>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <single>
+        <title>Rides observed</title>
+        <search>
+          <query>`queue_times_index` sourcetype=queue_times:ride park_id=$park|s$ | sort 0 - _time | dedup park_id ride_id | eval age_seconds=now()-_time, source_epoch=strptime(last_updated,"%Y-%m-%dT%H:%M:%S.%3NZ"), source_age_minutes=round((now()-source_epoch)/60,1), open=if(is_open="true",1,0), open_wait=if(open=1,wait_time,null()) | stats count as Rides</query>
+          <earliest>-30m</earliest>
+          <latest>now</latest>
+          <refresh>300s</refresh>
+        </search>
+        <option name="useColors">true</option>
+        <option name="rangeValues">[15,30,60]</option>
+      </single>
+    </panel>
+    <panel>
+      <single>
+        <title>Open rides</title>
+        <search>
+          <query>`queue_times_index` sourcetype=queue_times:ride park_id=$park|s$ | sort 0 - _time | dedup park_id ride_id | eval age_seconds=now()-_time, source_epoch=strptime(last_updated,"%Y-%m-%dT%H:%M:%S.%3NZ"), source_age_minutes=round((now()-source_epoch)/60,1), open=if(is_open="true",1,0), open_wait=if(open=1,wait_time,null()) | stats sum(open) as Open</query>
+          <earliest>-30m</earliest>
+          <latest>now</latest>
+          <refresh>300s</refresh>
+        </search>
+        <option name="useColors">true</option>
+        <option name="rangeValues">[15,30,60]</option>
+      </single>
+    </panel>
+    <panel>
+      <single>
+        <title>Average open wait · min</title>
+        <search>
+          <query>`queue_times_index` sourcetype=queue_times:ride park_id=$park|s$ | sort 0 - _time | dedup park_id ride_id | eval age_seconds=now()-_time, source_epoch=strptime(last_updated,"%Y-%m-%dT%H:%M:%S.%3NZ"), source_age_minutes=round((now()-source_epoch)/60,1), open=if(is_open="true",1,0), open_wait=if(open=1,wait_time,null()) | stats avg(open_wait) as Minutes | eval Minutes=round(Minutes,1)</query>
+          <earliest>-30m</earliest>
+          <latest>now</latest>
+          <refresh>300s</refresh>
+        </search>
+        <option name="useColors">true</option>
+        <option name="rangeValues">[15,30,60]</option>
+      </single>
+    </panel>
+    <panel>
+      <single>
+        <title>Oldest observation · min</title>
+        <search>
+          <query>`queue_times_index` sourcetype=queue_times:ride park_id=$park|s$ | sort 0 - _time | dedup park_id ride_id | eval age_seconds=now()-_time, source_epoch=strptime(last_updated,"%Y-%m-%dT%H:%M:%S.%3NZ"), source_age_minutes=round((now()-source_epoch)/60,1), open=if(is_open="true",1,0), open_wait=if(open=1,wait_time,null()) | stats max(age_seconds) as Minutes | eval Minutes=round(Minutes/60,1)</query>
+          <earliest>-30m</earliest>
+          <latest>now</latest>
+          <refresh>300s</refresh>
+        </search>
+        <option name="useColors">true</option>
+        <option name="rangeValues">[15,30,60]</option>
+      </single>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <chart>
+        <title>Longest queues</title>
+        <search>
+          <query>`queue_times_index` sourcetype=queue_times:ride park_id=$park|s$ | sort 0 - _time | dedup park_id ride_id | eval age_seconds=now()-_time, source_epoch=strptime(last_updated,"%Y-%m-%dT%H:%M:%S.%3NZ"), source_age_minutes=round((now()-source_epoch)/60,1), open=if(is_open="true",1,0), open_wait=if(open=1,wait_time,null()) | where open=1 | sort 0 - wait_time | head 15 | eval Ride=park_name." / ".ride_name | table Ride wait_time</query>
+          <earliest>-30m</earliest>
+          <latest>now</latest>
+          <refresh>300s</refresh>
+        </search>
+        <option name="charting.chart">bar</option>
+        <option name="charting.seriesColors">[0x4DE0C5,0xFFBD69,0x8C9EFF,0xEF8CAF]</option>
+      </chart>
+    </panel>
+    <panel>
+      <chart>
+        <title>Availability by park</title>
+        <search>
+          <query>`queue_times_index` sourcetype=queue_times:ride park_id=$park|s$ | sort 0 - _time | dedup park_id ride_id | eval age_seconds=now()-_time, source_epoch=strptime(last_updated,"%Y-%m-%dT%H:%M:%S.%3NZ"), source_age_minutes=round((now()-source_epoch)/60,1), open=if(is_open="true",1,0), open_wait=if(open=1,wait_time,null()) | stats sum(open) as Open count as Total by park_name | eval Closed=Total-Open | fields park_name Open Closed</query>
+          <earliest>-30m</earliest>
+          <latest>now</latest>
+          <refresh>300s</refresh>
+        </search>
+        <option name="charting.chart">column</option>
+        <option name="charting.seriesColors">[0x4DE0C5,0xFFBD69,0x8C9EFF,0xEF8CAF]</option>
+      </chart>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <table>
+        <title>Ride board · verify source freshness</title>
+        <search>
+          <query>`queue_times_index` sourcetype=queue_times:ride park_id=$park|s$ | sort 0 - _time | dedup park_id ride_id | eval age_seconds=now()-_time, source_epoch=strptime(last_updated,"%Y-%m-%dT%H:%M:%S.%3NZ"), source_age_minutes=round((now()-source_epoch)/60,1), open=if(is_open="true",1,0), open_wait=if(open=1,wait_time,null()) | eval Status=if(open=1,"OPEN","CLOSED") | sort 0 park_name - wait_time | table park_name land_name ride_name Status wait_time source_age_minutes last_updated</query>
+          <earliest>-30m</earliest>
+          <latest>now</latest>
+          <refresh>300s</refresh>
+        </search>
+      </table>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <map>
+        <title>Park map · average open wait</title>
+        <search>
+          <query>`queue_times_index` sourcetype=queue_times:ride park_id=$park|s$ | sort 0 - _time | dedup park_id ride_id | eval age_seconds=now()-_time, source_epoch=strptime(last_updated,"%Y-%m-%dT%H:%M:%S.%3NZ"), source_age_minutes=round((now()-source_epoch)/60,1), open=if(is_open="true",1,0), open_wait=if(open=1,wait_time,null()) | eval latitude=tonumber(latitude),longitude=tonumber(longitude) | geostats latfield=latitude longfield=longitude avg(open_wait)</query>
+          <earliest>-30m</earliest>
+          <latest>now</latest>
+          <refresh>300s</refresh>
+        </search>
+      </map>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <html>
+        <div class="pp-footer">
+          <a href="https://queue-times.com/" target="_blank" rel="noopener noreferrer">Powered by Queue-Times.com</a>
+          <span>Posted waits. Observed patterns. Your decisions.</span>
+          <a href="research_guide">How to read the data →</a>
+        </div>
+      </html>
+    </panel>
+  </row>
+</form>

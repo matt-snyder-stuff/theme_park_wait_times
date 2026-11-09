@@ -1,0 +1,21 @@
+name: queue-times
+services:
+  splunk:
+    image: splunk/splunk:9.4.13
+    platform: linux/amd64
+    container_name: queue-times-splunk
+    hostname: queue-times-splunk
+    environment:
+      SPLUNK_START_ARGS: --accept-license
+      SPLUNK_PASSWORD: ${SPLUNK_PASSWORD:?Set SPLUNK_PASSWORD in .env}
+    ports:
+      - "127.0.0.1:8000:8000"
+      - "127.0.0.1:8089:8089"
+    volumes:
+      - splunk-etc:/opt/splunk/etc
+      - splunk-var:/opt/splunk/var
+      - ./queue_times:/opt/splunk/etc/apps/queue_times
+    restart: unless-stopped
+volumes:
+  splunk-etc:
+  splunk-var:

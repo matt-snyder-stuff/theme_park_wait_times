@@ -1,0 +1,9 @@
+.env
+__pycache__/
+*.pyc
+queue_times/local/
+dist/
+*.lic
+*.pem
+*.key
+.DS_Store

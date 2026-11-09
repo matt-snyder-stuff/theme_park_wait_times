@@ -1,0 +1,98 @@
+<form version="1.1" theme="dark" stylesheet="planner.css">
+  <label>Data Health</label>
+  <description>Freshness, errors and collection performance.</description>
+  <row>
+    <panel>
+      <html>
+        <div class="pp-hero">
+          <p class="pp-eyebrow">PARK ATLAS / DATA HEALTH</p>
+          <h1>Data Health</h1>
+          <p class="pp-lede">Freshness, errors and collection performance.</p>
+          <div class="pp-tags">
+            <span>OBSERVE</span>
+            <span>COMPARE</span>
+            <span>PLAN</span>
+          </div>
+        </div>
+      </html>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <single>
+        <title>Successful park polls · 24h</title>
+        <search>
+          <query>`queue_times_index` sourcetype=queue_times:health status=ok | stats count</query>
+          <earliest>-24h</earliest>
+          <latest>now</latest>
+          <refresh>300s</refresh>
+        </search>
+        <option name="useColors">true</option>
+        <option name="rangeValues">[15,30,60]</option>
+      </single>
+    </panel>
+    <panel>
+      <single>
+        <title>Failed requests · 24h</title>
+        <search>
+          <query>`queue_times_index` sourcetype=queue_times:health status=error | stats count</query>
+          <earliest>-24h</earliest>
+          <latest>now</latest>
+          <refresh>300s</refresh>
+        </search>
+        <option name="useColors">true</option>
+        <option name="rangeValues">[15,30,60]</option>
+      </single>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <table>
+        <title>Latest collector contact · 7 days</title>
+        <search>
+          <query>`queue_times_index` sourcetype=queue_times:health | eval target=coalesce(park_name,tostring(park_id),"Catalog") | stats latest(status) as status latest(error) as last_error max(_time) as last_seen latest(ride_count) as ride_count by source target | eval minutes_since_contact=round((now()-last_seen)/60,1), freshness=if(minutes_since_contact&gt;30,"STALE","RECENT") | convert ctime(last_seen)</query>
+          <earliest>-7d</earliest>
+          <latest>now</latest>
+          <refresh>300s</refresh>
+        </search>
+      </table>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <chart>
+        <title>Poll latency</title>
+        <search>
+          <query>`queue_times_index` sourcetype=queue_times:health | timechart span=15m avg(duration_seconds) as Average max(duration_seconds) as Maximum</query>
+          <earliest>-24h</earliest>
+          <latest>now</latest>
+          <refresh>300s</refresh>
+        </search>
+        <option name="charting.chart">line</option>
+        <option name="charting.seriesColors">[0x4DE0C5,0xFFBD69,0x8C9EFF,0xEF8CAF]</option>
+      </chart>
+    </panel>
+    <panel>
+      <table>
+        <title>Recent errors</title>
+        <search>
+          <query>`queue_times_index` sourcetype=queue_times:health status=error | table _time park_id stage error | sort 0 - _time</query>
+          <earliest>-24h</earliest>
+          <latest>now</latest>
+          <refresh>300s</refresh>
+        </search>
+      </table>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <html>
+        <div class="pp-footer">
+          <a href="https://queue-times.com/" target="_blank" rel="noopener noreferrer">Powered by Queue-Times.com</a>
+          <span>Posted waits. Observed patterns. Your decisions.</span>
+          <a href="research_guide">How to read the data →</a>
+        </div>
+      </html>
+    </panel>
+  </row>
+</form>

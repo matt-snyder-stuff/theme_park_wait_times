@@ -1,0 +1,180 @@
+<form version="1.1" theme="dark" stylesheet="planner.css">
+  <label>Ride Reliability</label>
+  <description>Know the patterns. Prepare a backup.</description>
+  <fieldset submitButton="false">
+    <input type="dropdown" token="park" searchWhenChanged="true">
+      <label>Park</label>
+      <choice value="*">All parks</choice>
+      <default>*</default>
+      <fieldForLabel>park_name</fieldForLabel>
+      <fieldForValue>park_id</fieldForValue>
+      <search>
+        <query>`queue_times_index` sourcetype=queue_times:ride | stats latest(park_name) as park_name by park_id</query>
+        <earliest>-30d</earliest>
+        <latest>now</latest>
+      </search>
+    </input>
+    <input type="time" token="window" searchWhenChanged="true">
+      <label>History</label>
+      <default>
+        <earliest>-7d@d</earliest>
+        <latest>now</latest>
+      </default>
+    </input>
+  </fieldset>
+  <row>
+    <panel>
+      <html>
+        <div class="pp-hero">
+          <p class="pp-eyebrow">PARK ATLAS / RIDE RELIABILITY</p>
+          <h1>Ride Reliability</h1>
+          <p class="pp-lede">Know the patterns. Prepare a backup.</p>
+          <div class="pp-tags">
+            <span>OBSERVE</span>
+            <span>COMPARE</span>
+            <span>PLAN</span>
+          </div>
+        </div>
+      </html>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <chart>
+        <title>Opening vs closing · average wait (minutes)</title>
+        <search>
+          <query>`queue_times_index` sourcetype=queue_times:ride park_id=$park|s$ | `queue_times_observed_day` | where complete_day=1 AND open=1 | eval window=case(_time&lt;first_open+3600,"Opening hour",_time&gt;last_open-3600,"Closing hour") | where isnotnull(window) | chart avg(wait_time) over park_name by window</query>
+          <earliest>$window.earliest$</earliest>
+          <latest>$window.latest$</latest>
+          <refresh>300s</refresh>
+        </search>
+        <option name="charting.chart">column</option>
+        <option name="charting.seriesColors">[0x4DE0C5,0xFFBD69,0x8C9EFF,0xEF8CAF]</option>
+      </chart>
+    </panel>
+    <panel>
+      <single>
+        <title>Completed outages · median duration (minutes)</title>
+        <search>
+          <query>`queue_times_index` sourcetype=queue_times:ride park_id=$park|s$ | `queue_times_outage_segments` | where bounded=1 | stats median(duration_minutes) as Minutes</query>
+          <earliest>$window.earliest$</earliest>
+          <latest>$window.latest$</latest>
+          <refresh>300s</refresh>
+        </search>
+      </single>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <table>
+        <title>Opening / closing wait history</title>
+        <search>
+          <query>`queue_times_index` sourcetype=queue_times:ride park_id=$park|s$ | `queue_times_observed_day` | where complete_day=1 AND open=1 | eval window=case(_time&lt;first_open+3600,"Opening hour",_time&gt;last_open-3600,"Closing hour") | where isnotnull(window) | stats avg(wait_time) as Average perc95(wait_time) as P95 count as Samples by park_name park_local_date window | eval Average=round(Average,1),P95=round(P95,1) | sort 0 - park_local_date park_name window</query>
+          <earliest>$window.earliest$</earliest>
+          <latest>$window.latest$</latest>
+          <refresh>300s</refresh>
+        </search>
+      </table>
+    </panel>
+    <panel>
+      <table>
+        <title>Best rides near opening and closing</title>
+        <search>
+          <query>`queue_times_index` sourcetype=queue_times:ride park_id=$park|s$ | `queue_times_observed_day` | where complete_day=1 AND open=1 | eval window=case(_time&lt;first_open+3600,"Opening hour",_time&gt;last_open-3600,"Closing hour") | where isnotnull(window) | stats avg(wait_time) as Average perc95(wait_time) as P95 count as Samples dc(park_local_date) as Days by park_name ride_name window | eval Average=round(Average,1),P95=round(P95,1) | sort 0 Average</query>
+          <earliest>$window.earliest$</earliest>
+          <latest>$window.latest$</latest>
+          <refresh>300s</refresh>
+        </search>
+      </table>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <table>
+        <title>Typical completed outage by ride</title>
+        <search>
+          <query>`queue_times_index` sourcetype=queue_times:ride park_id=$park|s$ | `queue_times_outage_segments` | where bounded=1 | stats count as Episodes median(duration_minutes) as Median perc95(duration_minutes) as P95 max(duration_minutes) as Longest by park_name ride_name | sort 0 - Median</query>
+          <earliest>$window.earliest$</earliest>
+          <latest>$window.latest$</latest>
+          <refresh>300s</refresh>
+        </search>
+      </table>
+    </panel>
+    <panel>
+      <chart>
+        <title>Unavailable likelihood by local hour · sampled frequency</title>
+        <search>
+          <query>`queue_times_index` sourcetype=queue_times:ride park_id=$park|s$ | `queue_times_observed_day` | where _time&gt;=first_open AND _time&lt;=last_open | eval unavailable=if(open=0,100,0) | chart avg(unavailable) over park_local_hour by park_name limit=10</query>
+          <earliest>$window.earliest$</earliest>
+          <latest>$window.latest$</latest>
+          <refresh>300s</refresh>
+        </search>
+        <option name="charting.chart">column</option>
+        <option name="charting.seriesColors">[0x4DE0C5,0xFFBD69,0x8C9EFF,0xEF8CAF]</option>
+      </chart>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <table>
+        <title>Most likely unavailable hour for each ride</title>
+        <search>
+          <query>`queue_times_index` sourcetype=queue_times:ride park_id=$park|s$ | `queue_times_observed_day` | where _time&gt;=first_open AND _time&lt;=last_open | eval unavailable=if(open=0,100,0) | stats avg(unavailable) as Unavailable_pct count as Samples dc(park_local_date) as Days by park_id park_name ride_id ride_name park_local_hour | eval Unavailable_pct=round(Unavailable_pct,1) | sort 0 park_id ride_id - Unavailable_pct - Samples park_local_hour | dedup park_id ride_id | table park_name ride_name park_local_hour Unavailable_pct Samples Days</query>
+          <earliest>$window.earliest$</earliest>
+          <latest>$window.latest$</latest>
+          <refresh>300s</refresh>
+        </search>
+      </table>
+    </panel>
+    <panel>
+      <chart>
+        <title>Completed outage starts by local hour</title>
+        <search>
+          <query>`queue_times_index` sourcetype=queue_times:ride park_id=$park|s$ | `queue_times_outage_segments` | where bounded=1 | chart count over start_hour by park_name limit=10</query>
+          <earliest>$window.earliest$</earliest>
+          <latest>$window.latest$</latest>
+          <refresh>300s</refresh>
+        </search>
+        <option name="charting.chart">column</option>
+        <option name="charting.seriesColors">[0x4DE0C5,0xFFBD69,0x8C9EFF,0xEF8CAF]</option>
+      </chart>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <table>
+        <title>Episode ledger · incomplete durations are not estimates</title>
+        <search>
+          <query>`queue_times_index` sourcetype=queue_times:ride park_id=$park|s$ | `queue_times_outage_segments` | sort 0 - start | table park_name ride_name local_start episode_status duration_minutes observed_minutes transition_uncertainty_minutes samples</query>
+          <earliest>$window.earliest$</earliest>
+          <latest>$window.latest$</latest>
+          <refresh>300s</refresh>
+        </search>
+      </table>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <table>
+        <title>Observed daily boundaries and eligibility</title>
+        <search>
+          <query>`queue_times_index` sourcetype=queue_times:ride park_id=$park|s$ | `queue_times_observed_day` | eval first_label=if(_time=first_open,park_local_time,null()),last_label=if(_time=last_open,park_local_time,null()) | stats values(first_label) as First_open values(last_label) as Last_open max(complete_day) as Eligible count as Samples by park_name park_local_date | eval Comparison=if(Eligible=1,"Eligible estimate","Provisional / incomplete / short day") | fields - Eligible | sort 0 - park_local_date</query>
+          <earliest>$window.earliest$</earliest>
+          <latest>$window.latest$</latest>
+          <refresh>300s</refresh>
+        </search>
+      </table>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <html>
+        <div class="pp-footer">
+          <a href="https://queue-times.com/" target="_blank" rel="noopener noreferrer">Powered by Queue-Times.com</a>
+          <span>Posted waits. Observed patterns. Your decisions.</span>
+          <a href="research_guide">How to read the data →</a>
+        </div>
+      </html>
+    </panel>
+  </row>
+</form>

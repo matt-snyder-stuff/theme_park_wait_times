@@ -1,0 +1,111 @@
+<form version="1.1" theme="dark" stylesheet="planner.css">
+  <label>Wait Research</label>
+  <description>Compare observed wait patterns across time.</description>
+  <fieldset submitButton="false">
+    <input type="dropdown" token="park" searchWhenChanged="true">
+      <label>Park</label>
+      <choice value="*">All parks</choice>
+      <default>*</default>
+      <fieldForLabel>park_name</fieldForLabel>
+      <fieldForValue>park_id</fieldForValue>
+      <search>
+        <query>`queue_times_index` sourcetype=queue_times:ride | stats latest(park_name) as park_name by park_id | sort park_name</query>
+        <earliest>-7d</earliest>
+        <latest>now</latest>
+        <refresh>300s</refresh>
+      </search>
+    </input>
+    <input type="time" token="window" searchWhenChanged="true">
+      <label>History window</label>
+      <default>
+        <earliest>-24h</earliest>
+        <latest>now</latest>
+      </default>
+    </input>
+  </fieldset>
+  <row>
+    <panel>
+      <html>
+        <div class="pp-hero">
+          <p class="pp-eyebrow">PARK ATLAS / WAIT RESEARCH</p>
+          <h1>Wait Research</h1>
+          <p class="pp-lede">Compare observed wait patterns across time.</p>
+          <div class="pp-tags">
+            <span>OBSERVE</span>
+            <span>COMPARE</span>
+            <span>PLAN</span>
+          </div>
+        </div>
+      </html>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <chart>
+        <title>Wait pressure by park</title>
+        <search>
+          <query>`queue_times_index` sourcetype=queue_times:ride park_id=$park|s$ | where is_open="true" | timechart span=15m avg(wait_time) by park_name limit=10</query>
+          <earliest>$window.earliest$</earliest>
+          <latest>$window.latest$</latest>
+          <refresh>300s</refresh>
+        </search>
+        <option name="charting.chart">line</option>
+        <option name="charting.seriesColors">[0x4DE0C5,0xFFBD69,0x8C9EFF,0xEF8CAF]</option>
+      </chart>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <table>
+        <title>Ride wait distribution</title>
+        <search>
+          <query>`queue_times_index` sourcetype=queue_times:ride park_id=$park|s$ | where is_open="true" | stats count as Samples avg(wait_time) as Average perc50(wait_time) as Median perc95(wait_time) as P95 max(wait_time) as Peak by park_name ride_name | eval Average=round(Average,1) | sort 0 - P95</query>
+          <earliest>$window.earliest$</earliest>
+          <latest>$window.latest$</latest>
+          <refresh>300s</refresh>
+        </search>
+      </table>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <chart>
+        <title>Open snapshots by park · not downtime SLA</title>
+        <search>
+          <query>`queue_times_index` sourcetype=queue_times:ride park_id=$park|s$ | eval open=if(is_open="true",100,0) | timechart span=30m avg(open) by park_name limit=10</query>
+          <earliest>$window.earliest$</earliest>
+          <latest>$window.latest$</latest>
+          <refresh>300s</refresh>
+        </search>
+        <option name="charting.chart">area</option>
+        <option name="charting.seriesColors">[0x4DE0C5,0xFFBD69,0x8C9EFF,0xEF8CAF]</option>
+      </chart>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <chart>
+        <title>Typical waits by hour · Splunk user timezone</title>
+        <search>
+          <query>`queue_times_index` sourcetype=queue_times:ride park_id=$park|s$ | where is_open="true" | eval Hour=strftime(_time,"%H") | chart avg(wait_time) over Hour by park_name limit=10</query>
+          <earliest>$window.earliest$</earliest>
+          <latest>$window.latest$</latest>
+          <refresh>300s</refresh>
+        </search>
+        <option name="charting.chart">column</option>
+        <option name="charting.seriesColors">[0x4DE0C5,0xFFBD69,0x8C9EFF,0xEF8CAF]</option>
+      </chart>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <html>
+        <div class="pp-footer">
+          <a href="https://queue-times.com/" target="_blank" rel="noopener noreferrer">Powered by Queue-Times.com</a>
+          <span>Posted waits. Observed patterns. Your decisions.</span>
+          <a href="research_guide">How to read the data →</a>
+        </div>
+      </html>
+    </panel>
+  </row>
+</form>

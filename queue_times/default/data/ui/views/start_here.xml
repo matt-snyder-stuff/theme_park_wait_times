@@ -1,0 +1,139 @@
+<dashboard version="1.1" theme="dark" stylesheet="planner.css">
+  <label>Start Here</label>
+  <description>Park Atlas · Plan less waiting. Make more memories.</description>
+  <row>
+    <panel>
+      <html>
+        <div class="pp-hero">
+          <p class="pp-eyebrow">PARK ATLAS / TRIP INTELLIGENCE</p>
+          <h1>Less waiting.<br />More of the day you came for.</h1>
+          <p class="pp-lede">Turn live queues and collected history into a smarter opening move, a flexible afternoon, and a better backup plan.</p>
+          <div class="pp-tags">
+            <span>OBSERVE</span>
+            <span>COMPARE</span>
+            <span>PLAN</span>
+          </div>
+        </div>
+      </html>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <html>
+        <div class="pp-card-grid">
+          <a class="pp-card" href="park_planner">
+            <span class="pp-number">01 / PLAN</span>
+            <h2>Find your opening advantage</h2>
+            <p>Choose a park. Compare the first 30 minutes with later waits. Decide what deserves your first stop.</p>
+            <strong>Build a morning →</strong>
+          </a>
+          <a class="pp-card" href="disney_world">
+            <span class="pp-number">02 / EXPLORE</span>
+            <h2>Four parks. Your kind of day.</h2>
+            <p>A focused Disney World workspace for early rides, park hops and evenings worth staying for.</p>
+            <strong>Explore Disney World →</strong>
+          </a>
+          <a class="pp-card" href="ride_reliability">
+            <span class="pp-number">03 / ADAPT</span>
+            <h2>Have a plan B you like</h2>
+            <p>Understand observed unavailable periods. Keep an alternate ride ready before the morning changes.</p>
+            <strong>Research reliability →</strong>
+          </a>
+        </div>
+      </html>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <single>
+        <title>Parks reporting · 30m</title>
+        <search>
+          <query>`queue_times_index` sourcetype=queue_times:ride | stats dc(park_id) as Parks</query>
+          <earliest>-30m</earliest>
+          <latest>now</latest>
+        </search>
+      </single>
+    </panel>
+    <panel>
+      <single>
+        <title>Ride observations · 30m</title>
+        <search>
+          <query>`queue_times_index` sourcetype=queue_times:ride | stats count as Observations</query>
+          <earliest>-30m</earliest>
+          <latest>now</latest>
+        </search>
+      </single>
+    </panel>
+    <panel>
+      <single>
+        <title>Latest observation · minutes ago</title>
+        <search>
+          <query>`queue_times_index` sourcetype=queue_times:ride | stats max(_time) as seen | eval Minutes=round((now()-seen)/60,1) | fields Minutes</query>
+          <earliest>-30m</earliest>
+          <latest>now</latest>
+        </search>
+      </single>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <html>
+        <div class="pp-section">
+          <p class="pp-eyebrow">THE RESEARCH LOOP</p>
+          <h2>A great day has more than one good route.</h2>
+          <div class="pp-step-grid">
+            <div>
+              <b>Start with evidence</b>
+              <p>Check completed days and sample counts before trusting a pattern.</p>
+            </div>
+            <div>
+              <b>Spend your first hour wisely</b>
+              <p>Favor rides with a meaningful early wait advantage and reliable opening observations.</p>
+            </div>
+            <div>
+              <b>Leave room to change</b>
+              <p>Check today’s queues. Save flexible rides for gaps. Keep your must-dos separate from your maybes.</p>
+            </div>
+          </div>
+        </div>
+      </html>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <table>
+        <title>Your research footprint · click a park to plan</title>
+        <search>
+          <query>`queue_times_index` sourcetype=queue_times:ride | stats latest(park_name) as Park dc(park_local_date) as Days latest(park_timezone) as Timezone max(_time) as last_seen by park_id | eval Age_minutes=round((now()-last_seen)/60,1) | sort Park | table Park Days Timezone Age_minutes park_id</query>
+          <earliest>-7d</earliest>
+          <latest>now</latest>
+        </search>
+        <option name="count">8</option>
+        <drilldown>
+          <link>park_planner?form.park=$row.park_id|u$</link>
+        </drilldown>
+      </table>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <html>
+        <div class="pp-note">
+          <strong>New installation?</strong>
+          <p>Empty charts are normal until collection begins. Start with <a href="setup_guide">Setup &amp; Data Guide</a>, then return after your first poll. Historical recommendations improve as complete operating days accumulate.</p>
+        </div>
+      </html>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <html>
+        <div class="pp-footer">
+          <a href="https://queue-times.com/" target="_blank" rel="noopener noreferrer">Powered by Queue-Times.com</a>
+          <span>Posted waits. Observed patterns. Your decisions.</span>
+          <a href="research_guide">How to read the data →</a>
+        </div>
+      </html>
+    </panel>
+  </row>
+</dashboard>

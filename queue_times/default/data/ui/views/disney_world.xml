@@ -1,0 +1,271 @@
+<form version="1.1" theme="dark" stylesheet="planner.css">
+  <label>Disney World</label>
+  <description>Four parks. One better-informed trip.</description>
+  <fieldset submitButton="true" autoRun="true">
+    <input type="dropdown" token="park" searchWhenChanged="false">
+      <label>Park</label>
+      <choice value="*">All Disney World parks</choice>
+      <choice value="6">Magic Kingdom</choice>
+      <choice value="5">EPCOT</choice>
+      <choice value="7">Hollywood Studios</choice>
+      <choice value="8">Animal Kingdom</choice>
+      <default>7</default>
+      <change>
+        <set token="form.ride">*</set>
+        <set token="ride">*</set>
+      </change>
+    </input>
+    <input type="dropdown" token="ride" searchWhenChanged="false">
+      <label>Ride</label>
+      <choice value="*">All rides</choice>
+      <default>*</default>
+      <fieldForLabel>label</fieldForLabel>
+      <fieldForValue>ride_id</fieldForValue>
+      <search>
+        <query>`queue_times_index` sourcetype=queue_times:ride park_id IN (5,6,7,8) park_id=$park|s$ | stats latest(ride_name) as ride_name latest(park_name) as park_name by ride_id | eval label=park_name." / ".ride_name | sort label</query>
+        <earliest>-30d</earliest>
+        <latest>now</latest>
+      </search>
+    </input>
+    <input type="dropdown" token="weekday" searchWhenChanged="false">
+      <label>Visit weekday</label>
+      <choice value="*">Any day</choice>
+      <choice value="0">Sunday</choice>
+      <choice value="1">Monday</choice>
+      <choice value="2">Tuesday</choice>
+      <choice value="3">Wednesday</choice>
+      <choice value="4">Thursday</choice>
+      <choice value="5">Friday</choice>
+      <choice value="6">Saturday</choice>
+      <default>*</default>
+    </input>
+    <input type="dropdown" token="days" searchWhenChanged="false">
+      <label>Minimum days per hourly recommendation</label>
+      <choice value="3">3 days</choice>
+      <choice value="7">7 days</choice>
+      <choice value="1">1 day (exploratory)</choice>
+      <default>3</default>
+    </input>
+    <input type="time" token="window" searchWhenChanged="false">
+      <label>Learning window</label>
+      <default>
+        <earliest>-30d</earliest>
+        <latest>now</latest>
+      </default>
+    </input>
+  </fieldset>
+  <row>
+    <panel>
+      <html>
+        <div class="pp-hero">
+          <p class="pp-eyebrow">PARK ATLAS / DISNEY WORLD</p>
+          <h1>Disney World</h1>
+          <p class="pp-lede">Four parks. One better-informed trip.</p>
+          <div class="pp-tags">
+            <span>OBSERVE</span>
+            <span>COMPARE</span>
+            <span>PLAN</span>
+          </div>
+        </div>
+      </html>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <html>
+        <div class="pp-note">
+          <strong>Build your opening strategy</strong>
+          <p>Choose a park and weekday, then Apply. Start with the readiness check. Rank rides by the wait you might avoid, compare their early availability, and choose a backup. All hours are local to the park.</p>
+          <p>Three-day recommendations are the default. “1 day” is exploratory. Observed hours can include early entry; confirm your access and official hours.</p>
+        </div>
+      </html>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <single>
+        <title>Distinct days collected</title>
+        <search>
+          <query>`queue_times_index` sourcetype=queue_times:ride park_id IN (5,6,7,8) park_id=$park|s$ | where isnotnull(park_local_date) | eval weekday=strftime(strptime(park_local_date,"%Y-%m-%d"),"%w") | search weekday=$weekday|s$ | search ride_id=$ride|s$ | stats dc(park_local_date) as Days</query>
+          <earliest>$window.earliest$</earliest>
+          <latest>$window.latest$</latest>
+          <refresh>300s</refresh>
+        </search>
+      </single>
+    </panel>
+    <panel>
+      <single>
+        <title>Open ride samples available</title>
+        <search>
+          <query>`queue_times_index` sourcetype=queue_times:ride park_id IN (5,6,7,8) park_id=$park|s$ | where isnotnull(park_local_date) | eval weekday=strftime(strptime(park_local_date,"%Y-%m-%d"),"%w") | search weekday=$weekday|s$ | `queue_times_observed_day` | search ride_id=$ride|s$ | where open=1 AND _time&gt;=first_open AND _time&lt;=last_open | stats count as Samples</query>
+          <earliest>$window.earliest$</earliest>
+          <latest>$window.latest$</latest>
+          <refresh>300s</refresh>
+        </search>
+      </single>
+    </panel>
+    <panel>
+      <single>
+        <title>Rides with enough history for recommendations</title>
+        <search>
+          <query>`queue_times_index` sourcetype=queue_times:ride park_id IN (5,6,7,8) park_id=$park|s$ | where isnotnull(park_local_date) | eval weekday=strftime(strptime(park_local_date,"%Y-%m-%d"),"%w") | search weekday=$weekday|s$ | `queue_times_observed_day` | search ride_id=$ride|s$ | where open=1 AND _time&gt;=first_open AND _time&lt;=last_open | stats median(wait_time) as Median perc95(wait_time) as P95 avg(wait_time) as Average count as Samples dc(park_local_date) as Days by park_id park_name ride_id ride_name park_local_hour | where Days&gt;=tonumber($days|s$) AND Samples&gt;=12 | eval Average=round(Average,1) | stats dc(ride_id) as Rides</query>
+          <earliest>$window.earliest$</earliest>
+          <latest>$window.latest$</latest>
+          <refresh>300s</refresh>
+        </search>
+      </single>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <table>
+        <title>Opening data readiness · completed days required</title>
+        <search>
+          <query>`queue_times_index` sourcetype=queue_times:ride park_id IN (5,6,7,8) park_id=$park|s$ | where isnotnull(park_local_date) | eval weekday=strftime(strptime(park_local_date,"%Y-%m-%d"),"%w") | search weekday=$weekday|s$ | `queue_times_observed_day` | stats dc(park_local_date) as Observed_days dc(eval(if(complete_day=1,park_local_date,null()))) as Eligible_days by park_name | eval Required_days=tonumber($days|s$), Status=if(Eligible_days&lt;Required_days,"Collecting history: choose 1 day for exploratory results or wait for more complete days","Day coverage ready; individual rides still need enough open samples") | table park_name Observed_days Eligible_days Required_days Status | appendpipe [ stats count | where count=0 | eval Status="No qualifying observations for these filters yet. Check Opening data readiness, widen the learning window, or select 1 day for exploratory results." | fields Status ] | rename park_name AS "Park" Eligible_days AS "Complete days" Observed_days AS "Observed days" Required_days AS "Required days"</query>
+          <earliest>$window.earliest$</earliest>
+          <latest>$window.latest$</latest>
+          <refresh>300s</refresh>
+        </search>
+        <option name="count">8</option>
+        <option name="drilldown">none</option>
+      </table>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <table>
+        <title>Opening priorities · save passes for later</title>
+        <search>
+          <query>`queue_times_index` sourcetype=queue_times:ride park_id IN (5,6,7,8) park_id=$park|s$ | where isnotnull(park_local_date) | eval weekday=strftime(strptime(park_local_date,"%Y-%m-%d"),"%w") | search weekday=$weekday|s$ | `queue_times_observed_day` | search ride_id=$ride|s$ | where complete_day=1 AND _time&lt;=last_open | eval period=case(_time&gt;=first_open AND _time&lt;first_open+1800,"First30",_time&gt;=first_open+1800 AND _time&lt;first_open+3600,"Next30",_time&gt;=first_open+3600,"Later") | where isnotnull(period) | stats median(eval(if(period="First30" AND open=1,wait_time,null()))) as First30_median perc95(eval(if(period="First30" AND open=1,wait_time,null()))) as First30_P95 median(eval(if(period="Next30" AND open=1,wait_time,null()))) as Next30_median median(eval(if(period="Later" AND open=1,wait_time,null()))) as Later_median avg(eval(if(period="First30",100*open,null()))) as Early_open_pct count(eval(period="First30" AND open=1)) as Early_samples count(eval(period="Later" AND open=1)) as Later_samples dc(eval(if(period="First30" AND open=1,park_local_date,null()))) as Early_days dc(eval(if(period="Later" AND open=1,park_local_date,null()))) as Later_days by park_name ride_name | where Early_days&gt;=tonumber($days|s$) AND Later_days&gt;=tonumber($days|s$) AND Early_samples&gt;=6 AND Later_samples&gt;=12 | eval Potential_wait_avoided=round(Later_median-First30_median,1), Cost_of_delaying_30m=round(Next30_median-First30_median,1),Early_open_pct=round(Early_open_pct,1) | where Potential_wait_avoided&gt;0 | sort 0 - Potential_wait_avoided - Cost_of_delaying_30m First30_median | table park_name ride_name First30_median First30_P95 Next30_median Later_median Potential_wait_avoided Cost_of_delaying_30m Early_open_pct Early_days Later_days | appendpipe [ stats count | where count=0 | eval Status="No qualifying observations for these filters yet. Check Opening data readiness, widen the learning window, or select 1 day for exploratory results." | fields Status ] | rename First30_median AS "First 30m · median" First30_P95 AS "First 30m · P95" Next30_median AS "Next 30m · median" Later_median AS "Later · median" Potential_wait_avoided AS "Potential minutes avoided" Cost_of_delaying_30m AS "Cost of delaying 30m" Early_open_pct AS "Early open %" Early_days AS "Early days" Later_days AS "Later days" park_name AS "Park" ride_name AS "Ride" wait_time AS "Wait · minutes"</query>
+          <earliest>$window.earliest$</earliest>
+          <latest>$window.latest$</latest>
+          <refresh>300s</refresh>
+        </search>
+        <option name="count">8</option>
+        <option name="drilldown">none</option>
+      </table>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <table>
+        <title>First hour in 15-minute steps · choose your first and second ride</title>
+        <search>
+          <query>`queue_times_index` sourcetype=queue_times:ride park_id IN (5,6,7,8) park_id=$park|s$ | where isnotnull(park_local_date) | eval weekday=strftime(strptime(park_local_date,"%Y-%m-%d"),"%w") | search weekday=$weekday|s$ | `queue_times_observed_day` | search ride_id=$ride|s$ | where complete_day=1 AND open=1 AND _time&gt;=first_open AND _time&lt;first_open+3600 | eval Minutes_after_open=floor((_time-first_open)/900)*15 | stats median(wait_time) as Median perc95(wait_time) as P95 count as Samples dc(park_local_date) as Days by park_name ride_name Minutes_after_open | where Days&gt;=tonumber($days|s$) | sort 0 park_name ride_name Minutes_after_open | appendpipe [ stats count | where count=0 | eval Status="No qualifying observations for these filters yet. Check Opening data readiness, widen the learning window, or select 1 day for exploratory results." | fields Status ] | rename park_name AS "Park" ride_name AS "Ride" Minutes_after_open AS "Minutes after opening" wait_time AS "Wait · minutes"</query>
+          <earliest>$window.earliest$</earliest>
+          <latest>$window.latest$</latest>
+          <refresh>300s</refresh>
+        </search>
+        <option name="count">8</option>
+        <option name="drilldown">none</option>
+      </table>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <table>
+        <title>Best observed hour for each ride · lowest median</title>
+        <search>
+          <query>`queue_times_index` sourcetype=queue_times:ride park_id IN (5,6,7,8) park_id=$park|s$ | where isnotnull(park_local_date) | eval weekday=strftime(strptime(park_local_date,"%Y-%m-%d"),"%w") | search weekday=$weekday|s$ | `queue_times_observed_day` | search ride_id=$ride|s$ | where open=1 AND _time&gt;=first_open AND _time&lt;=last_open | stats median(wait_time) as Median perc95(wait_time) as P95 avg(wait_time) as Average count as Samples dc(park_local_date) as Days by park_id park_name ride_id ride_name park_local_hour | where Days&gt;=tonumber($days|s$) AND Samples&gt;=12 | eval Average=round(Average,1) | eventstats max(Median) as busiest_hour_median by park_id ride_id | sort 0 park_id ride_id Median P95 - Days park_local_hour | dedup park_id ride_id | eval Compared_to_busiest_hour=busiest_hour_median-Median, Hour=park_local_hour.":00" | sort 0 - Compared_to_busiest_hour | table park_name ride_name Hour Median P95 Compared_to_busiest_hour Samples Days | appendpipe [ stats count | where count=0 | eval Status="No qualifying observations for these filters yet. Check Opening data readiness, widen the learning window, or select 1 day for exploratory results." | fields Status ] | rename park_name AS "Park" ride_name AS "Ride" park_local_hour AS "Local hour" wait_time AS "Wait · minutes"</query>
+          <earliest>$window.earliest$</earliest>
+          <latest>$window.latest$</latest>
+          <refresh>300s</refresh>
+        </search>
+        <option name="count">8</option>
+        <option name="drilldown">none</option>
+      </table>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <table>
+        <title>Hourly ride wait matrix · median minutes</title>
+        <search>
+          <query>`queue_times_index` sourcetype=queue_times:ride park_id IN (5,6,7,8) park_id=$park|s$ | where isnotnull(park_local_date) | eval weekday=strftime(strptime(park_local_date,"%Y-%m-%d"),"%w") | search weekday=$weekday|s$ | `queue_times_observed_day` | search ride_id=$ride|s$ | where open=1 AND _time&gt;=first_open AND _time&lt;=last_open | stats median(wait_time) as Median perc95(wait_time) as P95 avg(wait_time) as Average count as Samples dc(park_local_date) as Days by park_id park_name ride_id ride_name park_local_hour | where Days&gt;=tonumber($days|s$) AND Samples&gt;=12 | eval Average=round(Average,1) | eval Ride=park_name." / ".ride_name | chart max(Median) over Ride by park_local_hour limit=0 | appendpipe [ stats count | where count=0 | eval Status="No qualifying observations for these filters yet. Check Opening data readiness, widen the learning window, or select 1 day for exploratory results." | fields Status ] | rename park_name AS "Park" ride_name AS "Ride" park_local_hour AS "Local hour" wait_time AS "Wait · minutes"</query>
+          <earliest>$window.earliest$</earliest>
+          <latest>$window.latest$</latest>
+          <refresh>300s</refresh>
+        </search>
+        <option name="count">8</option>
+        <option name="drilldown">none</option>
+      </table>
+    </panel>
+    <panel>
+      <chart>
+        <title>Hourly wait curve · select one ride for detail</title>
+        <search>
+          <query>`queue_times_index` sourcetype=queue_times:ride park_id IN (5,6,7,8) park_id=$park|s$ | where isnotnull(park_local_date) | eval weekday=strftime(strptime(park_local_date,"%Y-%m-%d"),"%w") | search weekday=$weekday|s$ | `queue_times_observed_day` | search ride_id=$ride|s$ | where open=1 AND _time&gt;=first_open AND _time&lt;=last_open | chart median(wait_time) over park_local_hour by park_name limit=4</query>
+          <earliest>$window.earliest$</earliest>
+          <latest>$window.latest$</latest>
+          <refresh>300s</refresh>
+        </search>
+        <option name="charting.chart">line</option>
+        <option name="charting.seriesColors">[0x4DE0C5,0xFFBD69,0x8C9EFF,0xEF8CAF]</option>
+      </chart>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <table>
+        <title>Opening vs closing hour · completed observed days</title>
+        <search>
+          <query>`queue_times_index` sourcetype=queue_times:ride park_id IN (5,6,7,8) park_id=$park|s$ | where isnotnull(park_local_date) | eval weekday=strftime(strptime(park_local_date,"%Y-%m-%d"),"%w") | search weekday=$weekday|s$ | `queue_times_observed_day` | search ride_id=$ride|s$ | where complete_day=1 AND open=1 | eval Visit_window=case(_time&lt;first_open+3600,"Opening hour",_time&gt;last_open-3600,"Closing hour") | where isnotnull(Visit_window) | stats median(wait_time) as Median perc95(wait_time) as P95 count as Samples dc(park_local_date) as Days by park_name ride_name Visit_window | sort 0 park_name ride_name Visit_window | appendpipe [ stats count | where count=0 | eval Status="No qualifying observations for these filters yet. Check Opening data readiness, widen the learning window, or select 1 day for exploratory results." | fields Status ] | rename park_name AS "Park" ride_name AS "Ride" wait_time AS "Wait · minutes"</query>
+          <earliest>$window.earliest$</earliest>
+          <latest>$window.latest$</latest>
+          <refresh>300s</refresh>
+        </search>
+        <option name="count">8</option>
+        <option name="drilldown">none</option>
+      </table>
+    </panel>
+    <panel>
+      <table>
+        <title>Unavailable frequency by local hour</title>
+        <search>
+          <query>`queue_times_index` sourcetype=queue_times:ride park_id IN (5,6,7,8) park_id=$park|s$ | where isnotnull(park_local_date) | eval weekday=strftime(strptime(park_local_date,"%Y-%m-%d"),"%w") | search weekday=$weekday|s$ | `queue_times_observed_day` | search ride_id=$ride|s$ | where _time&gt;=first_open AND _time&lt;=last_open | eval unavailable=if(open=0,100,0) | stats avg(unavailable) as Unavailable_pct count as Samples dc(park_local_date) as Days by park_name ride_name park_local_hour | eval Unavailable_pct=round(Unavailable_pct,1) | sort 0 - Unavailable_pct - Samples | appendpipe [ stats count | where count=0 | eval Status="No qualifying observations for these filters yet. Check Opening data readiness, widen the learning window, or select 1 day for exploratory results." | fields Status ] | rename park_name AS "Park" ride_name AS "Ride" Unavailable_pct AS "Unavailable %" park_local_hour AS "Local hour"</query>
+          <earliest>$window.earliest$</earliest>
+          <latest>$window.latest$</latest>
+          <refresh>300s</refresh>
+        </search>
+        <option name="count">8</option>
+        <option name="drilldown">none</option>
+      </table>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <table>
+        <title>Live ride board · lowest queues first</title>
+        <search>
+          <query>`queue_times_index` sourcetype=queue_times:ride park_id IN (5,6,7,8) park_id=$park|s$ | search ride_id=$ride|s$ | sort 0 - _time | dedup park_id ride_id | eval Status=if(is_open="true","OPEN","UNAVAILABLE"), Observation_age_min=round((now()-_time)/60,1), Source_age_min=round((now()-strptime(last_updated,"%Y-%m-%dT%H:%M:%S.%3NZ"))/60,1) | sort 0 Status wait_time | table park_name ride_name Status wait_time Observation_age_min Source_age_min | appendpipe [ stats count | where count=0 | eval Status="No qualifying observations for these filters yet. Check Opening data readiness, widen the learning window, or select 1 day for exploratory results." | fields Status ] | rename park_name AS "Park" ride_name AS "Ride" wait_time AS "Wait · minutes" Observation_age_min AS "Observation age · min" Source_age_min AS "Source age · min"</query>
+          <earliest>-30m</earliest>
+          <latest>now</latest>
+          <refresh>300s</refresh>
+        </search>
+        <option name="count">8</option>
+        <option name="drilldown">none</option>
+      </table>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <html>
+        <div class="pp-note pp-note-warm">
+          <strong>A timing advantage is not an itinerary.</strong>
+          <p>Walking time, height requirements, reservations, paid-access inventory and official schedules are not included. P95 describes longer posted waits in the sample—not a promise. Use the live board before committing to a queue.</p>
+        </div>
+      </html>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <html>
+        <div class="pp-footer">
+          <a href="https://queue-times.com/" target="_blank" rel="noopener noreferrer">Powered by Queue-Times.com</a>
+          <span>Posted waits. Observed patterns. Your decisions.</span>
+          <a href="research_guide">How to read the data →</a>
+        </div>
+      </html>
+    </panel>
+  </row>
+</form>
