@@ -31,7 +31,7 @@ Night-sky surfaces, teal navigation cues, warm amber accents, large editorial he
 
 - Expand the saved My Trip shortlist into must-do and optional categories with per-ride preferences.
 - Extend the two-park brief with route-aware sequencing and cross-timezone transfers.
-- Official-hours import with provenance and an early-entry eligibility setting.
+- Official-hours import with provenance; entry eligibility and confirmed entry time are already user-entered.
 - Daily summaries to make long-range research faster on small local instances.
 - Confidence and collection-gap summaries beside each recommended hour.
 - Broader Splunk-version validation, browser accessibility testing and AppInspect.

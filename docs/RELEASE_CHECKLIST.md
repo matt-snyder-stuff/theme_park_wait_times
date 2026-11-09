@@ -17,7 +17,7 @@
 - [ ] Keyboard focus, contrast and screen-reader review of the new presentation.
 - [ ] Blog screenshots captured from the reviewed live app without sensitive details.
 - [ ] Blog author review and final screenshot captions.
-- [ ] Splunk AppInspect assessment or explicitly documented outstanding findings.
+- [x] Splunk AppInspect assessment; five warnings documented in QA_REPORT.md.
 - [ ] CI run reviewed on GitHub.
 - [ ] Repository private vulnerability reporting enabled.
 
@@ -37,4 +37,4 @@ Browser automation was unavailable during the initial refresh session (native br
 - [x] Live SPL scenarios reject missing mid-day coverage and accept normal 15-minute polling jitter.
 - [x] My Trip morning and afternoon queries return real evidence.
 - [x] Original illustrations rendered and visually inspected; labeled as non-screenshots.
-- [ ] Browser interaction / accessibility checks and AppInspect still required.
+- [ ] Browser interaction / accessibility checks still required. Local AppInspect completed in 1.2.1.

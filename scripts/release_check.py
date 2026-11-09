@@ -7,6 +7,7 @@ root=Path(__file__).resolve().parents[1]
 c=configparser.ConfigParser();c.read(root/'queue_times/default/app.conf')
 package=root/'dist'/('queue_times-'+c['launcher']['version']+'.tar.gz')
 errors=[]
+if c.get("id","version",fallback="") != c["launcher"]["version"]:errors.append("App version mismatch between id and launcher")
 secrets=[]
 env=root/'.env'
 if env.exists():

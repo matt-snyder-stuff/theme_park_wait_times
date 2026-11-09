@@ -35,9 +35,9 @@ The app uses native Splunk Simple XML dashboards with a shared, responsive CSS t
 
 *Original concept illustration with fictional rides, not a screenshot. Actual app screenshots are pending live browser review.*
 
-Open **My Trip**, choose your two parks, enter your visit date and confirmed entry time, and allow time for the park transfer. Pick ride shortlists, record party needs and commitments, then Apply. Compare equal-weight daily medians and the range of observed daily advantages. Save a brief on this browser, download a private JSON backup, or print it.
+Open **My Trip**, choose your two parks, enter your visit date and confirmed entry time, and allow time for the park transfer. Pick ride shortlists, record party needs and commitments, then Apply. Compare equal-weight daily medians and the range of observed daily advantages. Save a brief on this browser, download/import a private JSON backup, or print it. Ride menus follow the park currently selected, and selecting specific rides overrides “All rides.”
 
-Browser saves are scoped to your Splunk username and do not sync between devices. Party notes are reminders, not an eligibility engine. The app does not automatically enforce reservations, optimize walking routes, or verify early-entry access. Both parks are assumed to share a timezone. Never sum opening advantages as if all rides could be entered simultaneously.
+Browser saves are scoped to your Splunk username and do not sync between devices. Party notes are reminders, not an eligibility engine. The app does not automatically enforce reservations, optimize walking routes, or verify early-entry access. Research looks back 60 days to support up to seven matching weekdays. Arrival windows begin no earlier than your transfer permits. Both parks are assumed to share a timezone. Never sum opening advantages as if all rides could be entered simultaneously.
 
 ## Quick start with Docker
 
@@ -66,7 +66,7 @@ python3 scripts/build_app.py
 python3 scripts/package.py
 ```
 
-Install `dist/queue_times-1.2.0.tar.gz` through **Apps → Manage Apps → Install app from file**. Package identity remains `queue_times` so existing installations retain their data and configuration; the display name is Park Atlas.
+Install `dist/queue_times-1.2.1.tar.gz` through **Apps → Manage Apps → Install app from file**. Package identity remains `queue_times` so existing installations retain their data and configuration; the display name is Park Atlas.
 
 The packaged input is disabled. Create a Queue-Times input through **Settings → Data inputs**, or add a stanza in `local/inputs.conf`:
 
@@ -114,6 +114,7 @@ The sample cadence reduces ingestion, but is not a guaranteed license cap. Monit
 ## Develop and verify
 
 ```sh
+node tests/test_trip.js
 python3 -m unittest discover -s tests -v
 python3 scripts/build_app.py
 python3 scripts/package.py
@@ -124,7 +125,7 @@ python3 scripts/release_check.py
 
 See [release notes](CHANGELOG.md), [release checklist](docs/RELEASE_CHECKLIST.md), [product direction](docs/PRODUCT.md), and the [blog draft](docs/BLOG_DRAFT.md).
 
-Tested locally on Splunk Enterprise 9.4.13. **Not AppInspect-certified, Splunkbase-certified, or validated for Splunk Cloud.** Browser rendering and accessibility must be reviewed before public release; see the checklist for the current validation status.
+Tested locally on Splunk Enterprise 9.4.13. **Not AppInspect-certified, Splunkbase-certified, or validated for Splunk Cloud.** Local AppInspect 4.4.0 precert checks pass with documented warnings; this is not certification. Browser rendering and accessibility still require review before a stable release. See the [QA report](docs/QA_REPORT.md) for the checked flows and remaining limits.
 
 ## Attribution and license
 

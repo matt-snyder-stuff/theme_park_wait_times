@@ -50,7 +50,7 @@
       <table>
         <title>Latest collector contact · 7 days</title>
         <search>
-          <query>`queue_times_index` sourcetype=queue_times:health | eval target=coalesce(park_name,tostring(park_id),"Catalog") | stats latest(status) as status latest(error) as last_error max(_time) as last_seen latest(ride_count) as ride_count by source target | eval minutes_since_contact=round((now()-last_seen)/60,1), freshness=if(minutes_since_contact&gt;30,"STALE","RECENT") | convert ctime(last_seen)</query>
+          <query>`queue_times_index` sourcetype=queue_times:health | eval target=coalesce(tostring(park_id),"Catalog") | stats latest(park_name) as Park latest(status) as status latest(error) as last_error max(_time) as last_seen latest(ride_count) as ride_count by source target | eval minutes_since_contact=round((now()-last_seen)/60,1), freshness=if(minutes_since_contact&gt;30,"STALE","RECENT") | convert ctime(last_seen)</query>
           <earliest>-7d</earliest>
           <latest>now</latest>
           <refresh>300s</refresh>

@@ -1,5 +1,17 @@
 # Changelog
 
+## 1.2.1 — QA fixes
+
+- Ride choices follow the current form park; specific choices override All rides.
+- Research looks back 60 days so seven matched weekdays are attainable.
+- Afternoon windows never start before the calculated arrival; closed overnight snapshots are excluded.
+- Early availability includes days with no early opening, avoiding optimistic selection bias.
+- Saved briefs use readable labels, valid HTML and validation before save/load/print/export.
+- Added validated local JSON import to complete the backup/restore flow.
+- Health failures and successes group under stable park IDs.
+- App metadata and modern Python declarations fixed; local AppInspect reports no failures/errors.
+- Added structural/controller regressions and AppInspect to CI.
+
 ## 1.2.0 — planning and data-quality candidate
 
 - Cadence-aware outage segmentation and daily coverage/gap eligibility checks.

@@ -37,3 +37,8 @@ a.pp-card:hover,a.pp-card:focus { border-color: #4de0c5; background: #1d3445; te
 .pp-trip-actions button:focus-visible { outline:3px solid #ffbd69; outline-offset:3px; }
 #trip-status { color:#b9cada; }
 @media print { .app-bar,.header,.fieldset,.pp-trip-actions { display:none !important; } .dashboard-body,.dashboard-panel,.pp-hero,.pp-section { background:white !important; color:black !important; box-shadow:none !important; } .pp-hero h1,.pp-section h2,.pp-section p,.pp-lede {color:black !important;} }
+@media print {
+  body.pp-print-trip * { visibility:hidden; }
+  body.pp-print-trip #trip-brief, body.pp-print-trip #trip-brief * { visibility:visible; }
+  body.pp-print-trip #trip-brief { position:absolute; top:0; left:0; right:0; padding:20px; background:white; color:black; }
+}

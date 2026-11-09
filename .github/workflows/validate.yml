@@ -19,3 +19,5 @@ jobs:
       - run: python scripts/build_app.py
       - run: python scripts/package.py
       - run: python scripts/release_check.py
+      - run: python -m pip install splunk-appinspect==4.4.0
+      - run: python scripts/run_appinspect.py
